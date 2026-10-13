@@ -1,0 +1,382 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  password      String
+  role          Role           @default(MSME)
+  gstin         String?
+  business_age  Int?
+  created_at    DateTime       @default(now())
+  updated_at    DateTime       @updatedAt
+  isActive      Boolean        @default(true)
+  kycStatus     KycStatus      @default(NOT_SUBMITTED)
+  riskScore     Int?
+  bids          Bid[]          @relation("UserBids")
+  fraud_flags   FraudFlag[]
+  invoices      Invoice[]      @relation("UserInvoices")
+  kyc           KYC?
+  lenderProfile LenderProfile?
+
+  // Funding offers where user is lender
+  fundingOffers FundingOffer[] @relation("LenderOffers")
+
+  // Deals
+  dealsAsLender Deal[] @relation("LenderDeals")
+  dealsAsMsme   Deal[] @relation("MsmeDeals")
+
+  // Wallet
+  wallet Wallet?
+
+  // Video Calls
+  callsAsLender CallSession[] @relation("LenderCall")
+  callsAsMsme   CallSession[] @relation("MSMECall")
+
+  @@index([email])
+  @@map("users")
+}
+
+model KYC {
+  id                String    @id @default(uuid())
+  userId            String    @unique
+  gstNumber         String
+  legalName         String
+  businessName      String
+  businessStartDate DateTime
+  businessAddress   String
+  turnover          Float
+  stateCode         String
+  panNumber         String
+  gstCertificateUrl String?
+  status            KycStatus @default(IN_PROGRESS)
+  adminRemark       String?
+  submittedAt       DateTime  @default(now())
+  reviewedAt        DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("kyc_records")
+}
+
+model Invoice {
+  id             String               @id @default(uuid())
+  user_id        String
+  amount         Decimal              @db.Decimal(15, 2)
+  due_date       DateTime
+  buyer_gstin    String
+  status         InvoiceStatus        @default(PENDING)
+  gst_verified   Boolean              @default(false)
+  created_at     DateTime             @default(now())
+  updated_at     DateTime             @updatedAt
+  invoice_number String?
+  bids           Bid[]
+  credit_score   CreditScore?
+  fraud_flags    FraudFlag[]
+  risk_analysis  InvoiceRiskAnalysis?
+  user           User                 @relation("UserInvoices", fields: [user_id], references: [id], onDelete: Cascade)
+  transactions   Transaction[]
+  fundingOffers  FundingOffer[]
+  deal           Deal?
+
+  @@index([user_id])
+  @@index([status])
+  @@map("invoices")
+}
+
+model CreditScore {
+  id         String    @id @default(uuid())
+  invoice_id String    @unique
+  score      Int
+  risk_level RiskLevel
+  created_at DateTime  @default(now())
+  invoice    Invoice   @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+
+  @@map("credit_scores")
+}
+
+model Bid {
+  id              String   @id @default(uuid())
+  invoice_id      String
+  lender_id       String
+  interest_rate   Decimal  @db.Decimal(5, 2)
+  funding_percent Decimal  @db.Decimal(5, 2)
+  created_at      DateTime @default(now())
+  invoice         Invoice  @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+  lender          User     @relation("UserBids", fields: [lender_id], references: [id], onDelete: Cascade)
+
+  @@index([invoice_id])
+  @@index([lender_id])
+  @@map("bids")
+}
+
+model Transaction {
+  id            String            @id @default(uuid())
+  invoice_id    String
+  funded_amount Decimal           @db.Decimal(15, 2)
+  interest      Decimal           @db.Decimal(15, 2)
+  status        TransactionStatus @default(INITIATED)
+  created_at    DateTime          @default(now())
+  invoice       Invoice           @relation(fields: [invoice_id], references: [id], onDelete: Cascade)
+
+  @@index([invoice_id])
+  @@map("transactions")
+}
+
+model FraudFlag {
+  id        String   @id @default(uuid())
+  invoiceId String?
+  userId    String
+  reason    String
+  riskScore Int
+  createdAt DateTime @default(now())
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([invoiceId])
+  @@map("fraud_flags")
+}
+
+model FeatureFlag {
+  id         String   @id @default(uuid())
+  featureKey String   @unique
+  isEnabled  Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+
+  @@map("feature_flags")
+}
+
+model InvoiceRiskAnalysis {
+  id               String   @id @default(uuid())
+  invoiceId        String   @unique
+  creditScore      Int
+  fraudScore       Int
+  fraudProbability Float
+  finalScore       Int
+  creditRiskBand   String
+  fraudRiskBand    String
+  breakdownJSON    Json
+  createdAt        DateTime @default(now())
+  invoice          Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@map("invoice_risk_analysis")
+}
+
+enum Role {
+  MSME
+  LENDER
+  ADMIN
+  CONTROLLER
+}
+
+enum KycStatus {
+  NOT_SUBMITTED
+  IN_PROGRESS
+  VERIFIED
+  REJECTED
+}
+
+enum InvoiceStatus {
+  PENDING
+  VERIFIED
+  OPEN_FOR_FUNDING
+  FUNDED
+  SETTLED
+  CLOSED
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum DealStatus {
+  ACTIVE
+  CLOSED
+  DEFAULTED
+}
+
+enum AgreementStatus {
+  PENDING
+  SIGNED
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum TransactionStatus {
+  INITIATED
+  COMPLETED
+}
+
+enum LenderType {
+  BANK
+  NBFC
+  REGISTERED_COMPANY
+  INDIVIDUAL_INVESTOR
+  OTHER_FINANCIAL_ENTITY
+}
+
+enum VerificationStatus {
+  NOT_SUBMITTED
+  IN_REVIEW
+  VERIFIED
+  REJECTED
+}
+
+model LenderProfile {
+  id                 String             @id @default(uuid())
+  userId             String             @unique
+  lenderType         LenderType
+  // Organization Info
+  organizationName   String?
+  registrationNumber String?
+  rbiLicenseNumber   String?
+  gstNumber          String?
+  // Individual Info
+  panNumber          String?
+  // Contact Info
+  contactPersonName  String?
+  contactPhone       String?
+  officialEmail      String?
+  // Investment Profile
+  capitalRange       String?
+  riskPreference     String?
+  // Bank Details
+  bankAccountNumber  String?
+  ifscCode           String?
+  // Verification
+  verificationStatus VerificationStatus @default(NOT_SUBMITTED)
+  adminRemark        String?
+  // Backend fields for verification
+  isRbiVerified      Boolean            @default(false)
+  isMcaVerified      Boolean            @default(false)
+  isPanVerified      Boolean            @default(false)
+  isBankVerified     Boolean            @default(false)
+  verificationRemark String?
+  isVerified         Boolean            @default(false)
+
+  // Performance Metrics
+  totalFundedAmount  Float              @default(0)
+  totalDealsFunded   Int                @default(0)
+  rating             Float?
+  // Timestamps
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("lender_profiles")
+}
+
+model FundingOffer {
+  id             String      @id @default(uuid())
+  invoiceId      String
+  lenderId       String
+  fundedAmount   Decimal     @db.Decimal(15, 2)
+  interestRate   Decimal     @db.Decimal(5, 2)
+  interestAmount Decimal     @db.Decimal(15, 2)
+  platformFee    Decimal     @db.Decimal(15, 2)
+  status         OfferStatus @default(PENDING)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  lender User @relation("LenderOffers", fields: [lenderId], references: [id], onDelete: Cascade)
+
+  @@index([invoiceId])
+  @@index([lenderId])
+  @@map("funding_offers")
+}
+
+model Deal {
+  id                   String     @id @default(uuid())
+  invoiceId            String     @unique
+  lenderId             String
+  msmeId               String
+  invoiceAmount        Decimal    @db.Decimal(15, 2)
+  fundedAmount         Decimal    @db.Decimal(15, 2)
+  interestAmount       Decimal    @db.Decimal(15, 2)
+  platformFee          Decimal    @db.Decimal(15, 2)
+  totalPayableToLender Decimal         @db.Decimal(15, 2)
+  dueDate              DateTime
+  status               DealStatus      @default(ACTIVE)
+
+  lenderSigned         Boolean         @default(false)
+  msmeSigned           Boolean         @default(false)
+  buyerSigned          Boolean         @default(false)
+  agreementSignedAt    DateTime?
+  agreementStatus      AgreementStatus @default(PENDING)
+
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+  lender  User    @relation("LenderDeals", fields: [lenderId], references: [id])
+  msme    User    @relation("MsmeDeals", fields: [msmeId], references: [id])
+  callSession CallSession?
+
+  @@index([lenderId])
+  @@index([msmeId])
+  @@map("deals")
+}
+
+model Wallet {
+  id               String   @id @default(uuid())
+  userId           String   @unique
+  availableBalance Decimal  @default(0) @db.Decimal(15, 2)
+  lockedBalance    Decimal  @default(0) @db.Decimal(15, 2)
+  totalEarnings    Decimal  @default(0) @db.Decimal(15, 2)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("wallets")
+}
+
+model CallSession {
+  id            String     @id @default(uuid())
+  dealId        String     @unique
+  lenderId      String
+  msmeId        String
+  status        CallStatus
+  roomToken     String?    // signed ephemeral JWT for signaling
+  recordingUrl  String?    // lender recording path
+  recordingUrl2 String?    // msme recording path
+  startedAt     DateTime?
+  endedAt       DateTime?
+  durationSec   Int?
+  createdAt     DateTime   @default(now())
+
+  deal   Deal @relation(fields: [dealId], references: [id])
+  lender User @relation("LenderCall", fields: [lenderId], references: [id])
+  msme   User @relation("MSMECall", fields: [msmeId], references: [id])
+
+  @@index([lenderId])
+  @@index([msmeId])
+  @@map("call_sessions")
+}
+
+enum CallStatus {
+  INITIATED
+  ONGOING
+  ENDED
+  FAILED
+}
