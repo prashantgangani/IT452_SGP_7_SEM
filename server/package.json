@@ -5,11 +5,12 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "prestart": "prisma generate",
+    "prisma:generate": "prisma generate",
+    "prestart": "npm run prisma:generate",
     "start": "node server.js",
-    "predev": "prisma generate",
+    "predev": "npm run prisma:generate",
     "dev": "nodemon server.js",
-    "build": "prisma generate",
+    "build": "npm run prisma:generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
