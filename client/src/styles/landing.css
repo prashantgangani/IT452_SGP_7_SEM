@@ -1,0 +1,113 @@
+.landing-page {
+    min-height: 100vh;
+    overflow: hidden;
+    color: var(--color-text-main, #0f172a);
+    background: var(--color-bg-base, #f8fafc);
+}
+
+.landing-container {
+    width: min(100% - 2.5rem, 80rem);
+    margin-inline: auto;
+}
+
+.landing-nav {
+    border-bottom: 1px solid var(--color-border-subtle, #e2e8f0);
+    background: var(--color-glass-overlay, rgba(255, 255, 255, 0.82));
+    backdrop-filter: blur(16px);
+}
+
+.landing-nav-btn-ghost,
+.landing-nav-btn-primary {
+    display: inline-flex;
+    min-height: 2.65rem;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.75rem;
+    font: inherit;
+    font-weight: 650;
+    cursor: pointer;
+    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.landing-nav-btn-ghost {
+    border-color: var(--color-border-subtle, #e2e8f0);
+    color: var(--color-text-main, #0f172a);
+    background: transparent;
+}
+
+.landing-nav-btn-ghost:hover {
+    border-color: var(--color-border-hover, #cbd5e1);
+    background: var(--color-bg-elevated-hover, #f1f5f9);
+}
+
+.landing-nav-btn-primary {
+    color: #fff;
+    background: var(--color-accent-primary, #3b82f6);
+}
+
+.landing-nav-btn-primary:hover {
+    filter: brightness(1.08);
+}
+
+.hero-section {
+    position: relative;
+    display: flex;
+    min-height: min(54rem, 100vh);
+    align-items: center;
+    padding: 7rem 0 4rem;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 5rem);
+}
+
+.hero-left {
+    min-width: 0;
+}
+
+.hero-right {
+    min-width: 0;
+    min-height: 28rem;
+}
+
+.landing-h1 {
+    max-width: 54rem;
+}
+
+.landing-text {
+    max-width: 36rem;
+}
+
+.cta-row {
+    justify-content: flex-start;
+}
+
+@media (max-width: 900px) {
+    .hero-section {
+        min-height: auto;
+        padding: 7rem 0 3rem;
+    }
+
+    .hero-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .hero-right {
+        min-height: 22rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .landing-container {
+        width: min(100% - 2rem, 80rem);
+    }
+
+    .hero-right {
+        min-height: 18rem;
+    }
+}
