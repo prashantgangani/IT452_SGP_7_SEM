@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import {
     BarChart3,
@@ -50,15 +50,16 @@ const AdminSidebar = ({ open }) => {
             {/* Navigation */}
             <nav className="sidebar-nav">
                 {menuItems.map((item) => (
-                    <button
+                    <NavLink
                         key={item.path}
-                        className="nav-item"
-                        onClick={() => navigate(item.path)}
+                        to={item.path}
+                        end={item.path === '/admin'}
+                        className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                         title={item.label}
                     >
                         <item.icon size={20} />
                         <span>{item.label}</span>
-                    </button>
+                    </NavLink>
                 ))}
             </nav>
 

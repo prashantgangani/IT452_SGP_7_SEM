@@ -4,7 +4,7 @@ import toast from 'react-hot-toast';
 import { Video } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://algorithm-addicts.onrender.com' : 'http://localhost:5000');
+const SOCKET_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://finsite-7l69.onrender.com' : 'http://localhost:5000');
 
 export const useNotificationSocket = (token) => {
   const [socket, setSocket] = useState(null);

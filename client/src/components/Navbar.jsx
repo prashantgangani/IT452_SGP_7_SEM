@@ -132,7 +132,7 @@ const Navbar = () => {
                     onClick={() => navigate('/msme')}
                 >
                     <span className="font-bold text-lg tracking-tight text-blue-500">Fin</span>
-                    <span className="font-bold text-lg tracking-tight text-theme-text">Bridge</span>
+                    <span className="font-bold text-lg tracking-tight text-theme-text">Site</span>
                 </div>
 
                 {/* Mobile Menu Toggle */}

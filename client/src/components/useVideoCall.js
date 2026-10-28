@@ -7,7 +7,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://algorithm-addicts.onrender.com' : 'http://localhost:5000');
+const SOCKET_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://finsite-7l69.onrender.com' : 'http://localhost:5000');
 
 const TURN_URL = import.meta.env.VITE_TURN_URL;
 const TURN_USERNAME = import.meta.env.VITE_TURN_USERNAME;

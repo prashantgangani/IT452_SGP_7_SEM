@@ -80,3 +80,18 @@ export const getAllDeals = async () => {
         throw error.response?.data?.message || 'Failed to fetch deals';
     }
 };
+
+const getAdminCollection = async (path, message) => {
+    try {
+        const response = await api.get(path);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data?.message || message;
+    }
+};
+
+export const getAllUsers = () => getAdminCollection('/admin/users', 'Failed to fetch users');
+export const getAllInvoices = () => getAdminCollection('/admin/invoices', 'Failed to fetch invoices');
+export const getAllBids = () => getAdminCollection('/admin/bids', 'Failed to fetch bids');
+export const getAllTransactions = () => getAdminCollection('/admin/transactions', 'Failed to fetch transactions');
+export const getRiskAlerts = () => getAdminCollection('/admin/alerts', 'Failed to fetch risk alerts');

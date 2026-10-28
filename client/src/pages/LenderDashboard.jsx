@@ -1268,26 +1268,6 @@ const LenderDashboard = () => {
                             <p className="text-theme-text-muted mt-2 text-sm">Here's what's happening with your investments today.</p>
                         </div>
 
-                        {/* KYC CTA — amber pulsing button identical to MSME */}
-                        {!isKycVerified ? (
-                            <div className="shrink-0 flex flex-col items-end gap-2 text-right">
-                                <button
-                                    onClick={() => navigate('/lender/kyc')}
-                                    className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-theme-text font-medium px-6 py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm animate-pulse"
-                                >
-                                    <Briefcase size={16} />
-                                    Complete KYC to Unlock Marketplace
-                                </button>
-                                <span className="text-amber-400/80 text-xs font-medium bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
-                                    Current Status: {kycStatus?.replace('_', ' ') || 'NOT SUBMITTED'}
-                                </span>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold shrink-0">
-                                <ShieldCheck size={14} />
-                                KYC Verified
-                            </div>
-                        )}
                     </div>
 
                     {/* Tab Navigation */}

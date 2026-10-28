@@ -248,6 +248,70 @@ export const getAllDeals = async (req, res, next) => {
     }
 };
 
+const sendAdminData = (res, data) => res.status(200).json({ success: true, data });
+
+export const getAllUsers = async (req, res, next) => {
+    try {
+        const users = await prisma.user.findMany({
+            orderBy: { created_at: 'desc' },
+            select: { id: true, name: true, email: true, role: true, isActive: true, kycStatus: true, riskScore: true, created_at: true },
+        });
+        sendAdminData(res, users);
+    } catch (error) { next(error); }
+};
+
+export const getAllInvoices = async (req, res, next) => {
+    try {
+        const invoices = await prisma.invoice.findMany({
+            orderBy: { created_at: 'desc' },
+            include: {
+                user: { select: { id: true, name: true, email: true } },
+                credit_score: true,
+                risk_analysis: true,
+            },
+        });
+        sendAdminData(res, invoices);
+    } catch (error) { next(error); }
+};
+
+export const getAllBids = async (req, res, next) => {
+    try {
+        const bids = await prisma.bid.findMany({
+            orderBy: { created_at: 'desc' },
+            include: {
+                lender: { select: { id: true, name: true, email: true } },
+                invoice: { select: { id: true, invoice_number: true, amount: true, user: { select: { name: true } } } },
+            },
+        });
+        sendAdminData(res, bids);
+    } catch (error) { next(error); }
+};
+
+export const getAllTransactions = async (req, res, next) => {
+    try {
+        const transactions = await prisma.transaction.findMany({
+            orderBy: { created_at: 'desc' },
+            include: {
+                invoice: { select: { id: true, invoice_number: true, user: { select: { name: true } } } },
+            },
+        });
+        sendAdminData(res, transactions);
+    } catch (error) { next(error); }
+};
+
+export const getRiskAlerts = async (req, res, next) => {
+    try {
+        const alerts = await prisma.fraudFlag.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: {
+                user: { select: { id: true, name: true, email: true } },
+                invoice: { select: { id: true, invoice_number: true } },
+            },
+        });
+        sendAdminData(res, alerts);
+    } catch (error) { next(error); }
+};
+
 export const verifyLenderChecklist = async (req, res, next) => {
     try {
         const userId = req.params.id;

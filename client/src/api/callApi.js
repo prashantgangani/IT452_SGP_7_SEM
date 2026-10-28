@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://algorithm-addicts.onrender.com' : 'http://localhost:5000');
+const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://finsite-7l69.onrender.com' : 'http://localhost:5000');
 
 const getHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem('token')}`,

@@ -24,6 +24,8 @@ import AdminLenderKycPage from './pages/AdminLenderKycPage';
 import LenderOnboardingPage from './pages/LenderOnboardingPage';
 import AdminDealPage from './pages/AdminDealPage';
 import MeetingRoom from './pages/MeetingRoom';
+import AdminDataPage from './pages/AdminDataPage';
+import AdminSettingsPage from './pages/AdminSettingsPage';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, loading, isAuthenticated } = useAuth();
@@ -175,6 +177,12 @@ function App() {
                   <AdminDealPage />
                 </ProtectedRoute>
               } />
+              <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="users" /></ProtectedRoute>} />
+              <Route path="/admin/invoices" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="invoices" /></ProtectedRoute>} />
+              <Route path="/admin/bids" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="bids" /></ProtectedRoute>} />
+              <Route path="/admin/transactions" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="transactions" /></ProtectedRoute>} />
+              <Route path="/admin/alerts" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="alerts" /></ProtectedRoute>} />
+              <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminSettingsPage /></ProtectedRoute>} />
 
               {/* Protected Route - Controller */}
               <Route path="/system-control" element={

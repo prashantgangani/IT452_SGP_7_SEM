@@ -18,6 +18,11 @@ router.patch('/lender/:id/reject', adminController.rejectLender);
 router.patch('/lender/:id/verify', adminController.verifyLenderChecklist);
 
 router.get('/deals', adminController.getAllDeals);
+router.get('/users', adminController.getAllUsers);
+router.get('/invoices', adminController.getAllInvoices);
+router.get('/bids', adminController.getAllBids);
+router.get('/transactions', adminController.getAllTransactions);
+router.get('/alerts', adminController.getRiskAlerts);
 router.get('/calls/recordings', adminController.getAllRecordings);
 
 export default router;

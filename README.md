@@ -204,7 +204,7 @@ The repository includes [render.yaml](render.yaml) for deploying the API from th
 
 1. Push the repository to GitHub.
 2. In Render, create a **Blueprint** from the repository, or create a Node Web Service with `server` as its root directory.
-3. Use the build command `npm ci && npx prisma generate`.
+3. Use the build command `npm install && npx prisma generate`.
 4. Use the start command `npm start`.
 5. Add these environment variables in Render:
    - `DATABASE_URL` — the production PostgreSQL/Neon connection string.
