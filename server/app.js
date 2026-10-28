@@ -16,6 +16,11 @@ import errorHandler from './middleware/error.middleware.js';
 import cookieParser from 'cookie-parser';
 
 const app = express();
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    ...(process.env.CLIENT_URL || '').split(',').map(origin => origin.trim()).filter(Boolean),
+];
 
 // Serve uploaded recordings statically
 const uploadPath = path.join(process.cwd(), 'uploads');
@@ -25,11 +30,7 @@ app.use('/uploads', express.static(uploadPath));
 // Middleware
 app.set("trust proxy", 1); // 🔥 Required for Render
 app.use(cors({
-    origin: [
-        "http://localhost:5173",
-        "https://algorithm-addicts.vercel.app",
-        process.env.CLIENT_URL
-    ].filter(Boolean), // Allow localhost, vercel, and any custom env URL
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     credentials: true
 }));

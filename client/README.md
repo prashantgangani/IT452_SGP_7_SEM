@@ -1,16 +1,60 @@
-# React + Vite
+# FinSite Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This folder contains the React/Vite frontend for **FinSite**, an invoice-financing marketplace for MSMEs and lenders.
 
-Currently, two official plugins are available:
+The frontend provides:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Public landing, login, and registration pages
+- Role-based MSME, lender, admin, and controller experiences
+- KYC and lender-verification forms
+- Invoice upload and invoice listing pages
+- Offer, deal, wallet, analytics, and profile pages
+- Digital agreement and invoice PDF download actions
+- Meeting-room UI for deal-based video calls and chat
 
-## React Compiler
+## Run the frontend
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+From this directory:
 
-## Expanding the ESLint configuration
+```powershell
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The Vite development server normally runs at `http://localhost:5173`.
+
+The frontend uses these development API defaults:
+
+- REST API: `http://localhost:5000/api`
+- Socket.IO server: `http://localhost:5000`
+
+To override them, create a local `client/.env` file:
+
+```env
+VITE_API_BASE_URL=http://localhost:5000/api
+VITE_API_URL=http://localhost:5000
+```
+
+Do not commit `.env` files or credentials.
+
+## Build and lint
+
+```powershell
+npm run build
+npm run lint
+```
+
+## Frontend flow
+
+1. `App.jsx` registers the routes and applies public/protected role guards.
+2. `AuthContext` restores the current session and stores the authentication token.
+3. API modules under `src/api` call the Express backend.
+4. Context providers manage authentication, theme, and feature flags.
+5. Pages render the business workflows for each role.
+6. Socket.IO and WebRTC support the deal meeting experience.
+
+## Blog summary
+
+FinSite's frontend is the user-facing layer of a digital invoice-financing marketplace. It guides an MSME from registration and KYC through invoice submission, risk review, lender offers, funding, wallet tracking, and deal completion. Lenders use a separate dashboard to review opportunities and fund invoices, while administrators manage verification and platform oversight.
+
+For the complete project explanation, see the root [README.md](../README.md) and [PROJECT_BLOG.md](PROJECT_BLOG.md).

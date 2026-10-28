@@ -5,12 +5,17 @@ import app from './app.js';
 import { registerCallSocket } from './services/callSignalingService.js';
 
 const PORT = process.env.PORT || 5000;
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  ...(process.env.CLIENT_URL || '').split(',').map(origin => origin.trim()).filter(Boolean),
+];
 
 const httpServer = createServer(app);
 
 const io = new SocketIOServer(httpServer, {
   cors: {
-    origin: [process.env.CLIENT_URL || 'http://localhost:5173', 'http://localhost:5174'],
+    origin: allowedOrigins,
     methods: ['GET', 'POST'],
     credentials: true,
   },
