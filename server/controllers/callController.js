@@ -5,8 +5,8 @@ import { notifyUser } from "../services/socketManager.js";
 const signRoomToken = (payload) =>
   jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "2h" });
 
-const assertParticipant = (deal, userId) =>
-  deal.lenderId === userId || deal.msmeId === userId;
+const assertParticipant = (deal, userId, role) =>
+  deal.lenderId === userId || deal.msmeId === userId || role === 'ADMIN';
 
 // -------------------------------------------------------------------
 // POST /api/call/:dealId/initiate
@@ -15,6 +15,7 @@ export const initiateCall = async (req, res) => {
   try {
     const { dealId } = req.params;
     const callerId = req.user.id;
+    const callerRole = req.user.role;
 
     const deal = await prisma.deal.findUnique({
       where: { id: dealId },
@@ -27,7 +28,7 @@ export const initiateCall = async (req, res) => {
     if (!deal)
       return res.status(404).json({ success: false, message: "Deal not found." });
 
-    if (!assertParticipant(deal, callerId))
+    if (!assertParticipant(deal, callerId, callerRole))
       return res.status(403).json({ success: false, message: "You are not a participant of this deal." });
 
     if (deal.status !== "ACTIVE")
@@ -41,7 +42,7 @@ export const initiateCall = async (req, res) => {
 
     // Helper to send notification if caller is Lender
     const triggerNotificationIfNeeded = () => {
-      if (req.user.role === 'LENDER') {
+      if (callerRole === 'LENDER') {
         const io = req.app.locals.io;
         if (io) {
           notifyUser(io, deal.msmeId, "meeting:started", {
@@ -52,11 +53,16 @@ export const initiateCall = async (req, res) => {
       }
     };
 
-    // If a session is already live, let the second participant join it
+    // If a session is already live, let the participant join it
     const existing = await prisma.callSession.findUnique({ where: { dealId } });
     if (existing && ["INITIATED", "ONGOING"].includes(existing.status)) {
       const roomToken = signRoomToken({
-        sessionId: existing.id, dealId, lenderId: deal.lenderId, msmeId: deal.msmeId,
+        sessionId: existing.id,
+        dealId,
+        lenderId: deal.lenderId,
+        msmeId: deal.msmeId,
+        userId: callerId,
+        role: callerRole,
       });
       
       triggerNotificationIfNeeded();
@@ -76,7 +82,12 @@ export const initiateCall = async (req, res) => {
     });
 
     const roomToken = signRoomToken({
-      sessionId: session.id, dealId, lenderId: deal.lenderId, msmeId: deal.msmeId,
+      sessionId: session.id,
+      dealId,
+      lenderId: deal.lenderId,
+      msmeId: deal.msmeId,
+      userId: callerId,
+      role: callerRole,
     });
 
     const updated = await prisma.callSession.update({
@@ -104,12 +115,13 @@ export const endCall = async (req, res) => {
   try {
     const { dealId } = req.params;
     const callerId = req.user.id;
+    const callerRole = req.user.role;
 
     const session = await prisma.callSession.findUnique({ where: { dealId } });
     if (!session)
       return res.status(404).json({ success: false, message: "No call session found." });
 
-    if (session.lenderId !== callerId && session.msmeId !== callerId)
+    if (session.lenderId !== callerId && session.msmeId !== callerId && callerRole !== 'ADMIN')
       return res.status(403).json({ success: false, message: "Access denied." });
 
     if (session.status === "ENDED")
@@ -143,10 +155,11 @@ export const getCallStatus = async (req, res) => {
   try {
     const { dealId } = req.params;
     const callerId = req.user.id;
+    const callerRole = req.user.role;
 
     const deal = await prisma.deal.findUnique({ where: { id: dealId } });
-    if (!deal || !assertParticipant(deal, callerId)) {
-      console.log(`[getCallStatus] Access denied for user ${callerId} on deal ${dealId}`);
+    if (!deal || !assertParticipant(deal, callerId, callerRole)) {
+      console.log(`[getCallStatus] Access denied for user ${callerId} (${callerRole}) on deal ${dealId}`);
       return res.status(403).json({ success: false, message: "Access denied." });
     }
 
@@ -209,9 +222,10 @@ export const getRecordings = async (req, res) => {
   try {
     const { dealId } = req.params;
     const callerId = req.user.id;
+    const callerRole = req.user.role;
 
     const deal = await prisma.deal.findUnique({ where: { id: dealId } });
-    if (!deal || !assertParticipant(deal, callerId))
+    if (!deal || !assertParticipant(deal, callerId, callerRole))
       return res.status(403).json({ success: false, message: "Access denied." });
 
     const session = await prisma.callSession.findUnique({ where: { dealId } });

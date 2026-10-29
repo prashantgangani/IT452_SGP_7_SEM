@@ -24,6 +24,7 @@ export function registerCallSocket(io) {
       socket.dealId = payload.dealId;
       socket.lenderId = payload.lenderId;
       socket.msmeId = payload.msmeId;
+      socket.role = payload.role;
     } catch {
       return next(new Error("Invalid room token"));
     }
@@ -32,6 +33,8 @@ export function registerCallSocket(io) {
       if (userToken) {
         const u = jwt.verify(userToken, process.env.JWT_SECRET);
         socket.userId = u.id;
+        socket.userRole = u.role || socket.role;
+        socket.userName = u.name;
       }
     } catch { /* best effort */ }
 
@@ -51,8 +54,9 @@ export function registerCallSocket(io) {
 
       const activeUsers = Object.keys(room.participants);
       
-      if (activeUsers.length >= 2 && !room.participants[userId]) {
-        socket.emit("call:error", { message: "Room is full." });
+      // Allow up to 3 participants (e.g. Lender, MSME, and Admin)
+      if (activeUsers.length >= 3 && !room.participants[userId]) {
+        socket.emit("call:error", { message: "Room is full (max 3 participants)." });
         return;
       }
 
@@ -75,18 +79,28 @@ export function registerCallSocket(io) {
 
       const currentUsersCount = Object.keys(room.participants).length;
 
+      // Broadcast participants count update
+      callNs.to(roomId).emit("call:participants-update", {
+        count: currentUsersCount,
+        participants: Object.keys(room.participants),
+      });
+
       if (currentUsersCount === 1) {
         // First person → waiting
         socket.emit("call:joined");
       } else {
-        // Second person → both are ready
+        // Second or third person → both are ready
         socket.emit("call:joined");
         
-        const otherSocketId = Object.values(room.participants).find(id => id !== socket.id);
-        if (otherSocketId) {
-          // Tell the peer who was already here to create the offer
-          callNs.to(otherSocketId).emit("call:peer-joined");
-          // Tell the newly joined peer to wait for the offer
+        const otherSocketIds = Object.values(room.participants).filter(id => id !== socket.id);
+        if (otherSocketIds.length > 0) {
+          otherSocketIds.forEach(peerSocketId => {
+            callNs.to(peerSocketId).emit("call:peer-joined", {
+              newPeerId: socket.id,
+              userId: socket.userId,
+              role: socket.userRole || socket.role,
+            });
+          });
           socket.emit("call:peer-ready");
         }
       }
@@ -108,16 +122,20 @@ export function registerCallSocket(io) {
     });
 
     // ─── CHAT ─────────────────────────────────────────────
-    socket.on("call:chat-message", ({ text }) => {
+    socket.on("call:chat-message", ({ text, senderName }) => {
       if (!text || typeof text !== "string" || !text.trim()) return;
+      const role = socket.userRole || socket.role || "USER";
+      const resolvedName = senderName || (role === 'ADMIN' ? 'Admin (Platform)' : (socket.userName || 'Participant'));
       const msg = {
         text: text.trim().slice(0, 1000),
         senderId: socket.userId || socket.id,
+        senderName: resolvedName,
+        senderRole: role,
         timestamp: new Date().toISOString(),
       };
       // Echo own message back
       socket.emit("call:chat-message", { ...msg, own: true });
-      // Send to other peer
+      // Send to other peer(s)
       socket.to(socket.currentRoom).emit("call:chat-message", { ...msg, own: false });
     });
 
@@ -127,17 +145,23 @@ export function registerCallSocket(io) {
 
     function cleanup(s) {
       if (s.currentRoom) {
-        s.to(s.currentRoom).emit("call:peer-left");
         const room = rooms[s.currentRoom];
+        let remainingCount = 0;
         if (room && s.roomUserId) {
           // Only delete if the disconnected socket is still the active one for this user
           if (room.participants[s.roomUserId] === s.id) {
              delete room.participants[s.roomUserId];
-             if (Object.keys(room.participants).length === 0) {
+             remainingCount = Object.keys(room.participants).length;
+             if (remainingCount === 0) {
                delete rooms[s.currentRoom];
              }
           }
         }
+        s.to(s.currentRoom).emit("call:peer-left", {
+          userId: s.roomUserId,
+          role: s.userRole || s.role,
+          remainingCount,
+        });
         s.leave(s.currentRoom);
         s.currentRoom = null;
       }

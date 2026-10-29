@@ -33,11 +33,18 @@ function ChatPanel({ messages, onSend }) {
           <p className="text-center text-theme-text-muted text-xs mt-4 opacity-60">No messages yet…</p>
         )}
         {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.own ? 'justify-end' : 'justify-start'}`}>
+          <div key={i} className={`flex flex-col ${m.own ? 'items-end' : 'items-start'}`}>
+            {m.senderName && (
+              <span className="text-[10px] text-theme-text-muted mb-0.5 px-1 font-medium">
+                {m.own ? 'You' : m.senderName} {m.senderRole === 'ADMIN' ? '(Admin)' : ''}
+              </span>
+            )}
             <span
               className={`max-w-[75%] text-xs px-3 py-1.5 rounded-xl leading-relaxed break-words ${
                 m.own
                   ? 'bg-violet-600 text-white rounded-br-none shadow-sm'
+                  : m.senderRole === 'ADMIN'
+                  ? 'bg-purple-500/20 text-purple-600 dark:text-purple-300 border border-purple-500/30 rounded-bl-none font-medium'
                   : 'bg-theme-surface-hover text-theme-text border border-theme-border rounded-bl-none'
               }`}
             >
@@ -52,7 +59,7 @@ function ChatPanel({ messages, onSend }) {
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && submit()}
-          placeholder="Type a message…"
+          placeholder="Type a message to participants…"
           className="flex-1 bg-theme-bg border border-theme-border rounded-xl px-3 py-1.5 text-sm text-theme-text placeholder:text-theme-text-muted outline-none focus:border-violet-500/50 transition-colors"
         />
         <button
@@ -268,9 +275,13 @@ export default function MeetingRoom() {
                 <VideoIcon size={36} className="text-violet-500 dark:text-violet-400" />
               </div>
               <div className="text-center">
-                <h1 className="text-2xl font-bold text-theme-text mb-2">Ready to Join?</h1>
+                <h1 className="text-2xl font-bold text-theme-text mb-2">
+                  {user?.role === 'ADMIN' ? 'Join Deal Meeting (Admin)' : 'Ready to Join?'}
+                </h1>
                 <p className="text-theme-text-muted text-sm max-w-sm">
-                  Your camera and microphone will be activated when you join. Make sure you are in a well-lit, quiet space.
+                  {user?.role === 'ADMIN'
+                    ? 'You are joining as Platform Administrator. You can participate in the call or communicate with the Lender & MSME via in-call chat.'
+                    : 'Your camera and microphone will be activated when you join. Make sure you are in a well-lit, quiet space.'}
                 </p>
               </div>
               {joinError && (
@@ -284,7 +295,7 @@ export default function MeetingRoom() {
                 className="flex items-center gap-3 px-8 py-3.5 bg-violet-600 hover:bg-violet-500 disabled:opacity-60 rounded-2xl text-white font-semibold transition-all shadow-xl shadow-violet-500/20 active:scale-95"
               >
                 {joining ? <Loader2 size={20} className="animate-spin" /> : <VideoIcon size={20} />}
-                {joining ? 'Joining…' : 'Join Video Call'}
+                {joining ? 'Joining…' : user?.role === 'ADMIN' ? 'Enter Meeting & Chat' : 'Join Video Call'}
               </button>
             </div>
           )}

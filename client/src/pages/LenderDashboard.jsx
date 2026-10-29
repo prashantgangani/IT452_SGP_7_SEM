@@ -25,7 +25,7 @@ import toast from 'react-hot-toast';
 import { getAvailableInvoices } from '../api/invoiceApi';
 import { getMyWallet } from '../api/walletApi';
 import { createOffer } from '../api/offerApi';
-import { getMyDeals, fundDeal, signAgreement, downloadAgreement } from '../api/dealApi';
+import { getMyDeals, fundDeal, signAgreement, downloadAgreement, toggleAdminInvite } from '../api/dealApi';
 import '../styles/landing.css';
 // ─── Static Dummy Data ────────────────────────────────────────────────────────
 // TODO: Replace with API calls when backend bidding endpoints are ready
@@ -595,7 +595,7 @@ const MarketplaceSection = ({ onViewInvoice, onFundInvoice, availableInvoices = 
     );
 };
 
-const InvestmentsSection = ({ myDeals, onFundDeal, isSubmittingDeal, onSignAgreement, isSigningAgreement, onDownloadAgreement, isDownloadingAgreement }) => {
+const InvestmentsSection = ({ myDeals, onFundDeal, isSubmittingDeal, onSignAgreement, isSigningAgreement, onDownloadAgreement, isDownloadingAgreement, onToggleAdminInvite }) => {
     const totalInvested = myDeals.reduce((sum, deal) => sum + parseFloat(deal.fundedAmount), 0);
     const expectedReturns = myDeals.reduce((sum, deal) => sum + parseFloat(deal.interestAmount), 0);
     const activePositions = myDeals.filter(d => d.status === 'ACTIVE').length;
@@ -670,6 +670,8 @@ const InvestmentsSection = ({ myDeals, onFundDeal, isSubmittingDeal, onSignAgree
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <AgreementActions
                                                 isSigned={deal.lenderSigned && deal.msmeSigned}
+                                                adminInvited={deal.adminInvited}
+                                                buyerSigned={deal.buyerSigned}
                                                 isDownloading={isDownloadingAgreement === deal.id}
                                                 isSigning={isSigningAgreement === deal.id}
                                                 onDownload={() => onDownloadAgreement(deal.id)}
@@ -678,7 +680,7 @@ const InvestmentsSection = ({ myDeals, onFundDeal, isSubmittingDeal, onSignAgree
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {deal.status === 'ACTIVE' ? (
-                                                <div className="flex items-center gap-2">
+                                                <div className="flex items-center gap-2 flex-wrap">
                                                     <button
                                                         onClick={() => onFundDeal(deal.id)}
                                                         disabled={isSubmittingDeal}
@@ -691,6 +693,18 @@ const InvestmentsSection = ({ myDeals, onFundDeal, isSubmittingDeal, onSignAgree
                                                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(`/meeting/${deal.id}`, '_blank'); }}
                                                             className="px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-500/20 transition-all box-border">
                                                             <Video size={13} /> Join Call
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onToggleAdminInvite?.(deal.id); }}
+                                                            className={`px-2.5 py-1.5 text-xs font-medium rounded-lg flex items-center gap-1.5 transition-all border ${
+                                                                deal.adminInvited
+                                                                    ? 'bg-purple-600 text-white border-purple-500 shadow-sm shadow-purple-600/30'
+                                                                    : 'bg-theme-surface hover:bg-theme-surface-hover text-theme-text-muted hover:text-theme-text border-theme-border'
+                                                            }`}
+                                                            title={deal.adminInvited ? "Admin is invited to VC and agreement attestation (Click to revoke)" : "Invite Admin to join VC and e-sign this deal"}
+                                                        >
+                                                            <ShieldCheck size={13} className={deal.adminInvited ? "text-white" : "text-purple-400"} />
+                                                            <span>{deal.adminInvited ? 'Admin in VC ✓' : '+ Admin in VC'}</span>
                                                         </button>
                                                     </FeatureGuard>
                                                 </div>
@@ -1084,6 +1098,19 @@ const LenderDashboard = () => {
         }
     };
 
+    const handleToggleAdminInvite = async (dealId) => {
+        try {
+            const res = await toggleAdminInvite(dealId);
+            if (res.success) {
+                toast.success(res.message);
+                setMyDeals(prev => prev.map(d => d.id === dealId ? { ...d, adminInvited: res.adminInvited } : d));
+            }
+        } catch (error) {
+            console.error('Failed to toggle admin invite:', error);
+            toast.error(error.message || 'Failed to update Admin invitation');
+        }
+    };
+
     // ── Marketplace KYC Gate Banner ───────────────────────────────────────────
     const MarketplaceKycBanner = () => (
         <div className="flex flex-col items-center justify-center py-20 space-y-6 text-center">
@@ -1145,6 +1172,7 @@ const LenderDashboard = () => {
                         isSigningAgreement={isSigningAgreement}
                         onDownloadAgreement={handleDownloadAgreement}
                         isDownloadingAgreement={isDownloadingAgreement}
+                        onToggleAdminInvite={handleToggleAdminInvite}
                     />
                 </FeatureGuard>
             );

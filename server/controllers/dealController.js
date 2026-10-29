@@ -1,6 +1,9 @@
 import prisma from '../config/prisma.js';
 import PDFDocument from 'pdfkit';
 
+// Track which deals Lender has explicitly invited/requested Admin to participate & attest
+export const adminInvitedDeals = new Set();
+
 export const getMyDeals = async (req, res) => {
     try {
         const userId = req.user.id;
@@ -17,7 +20,12 @@ export const getMyDeals = async (req, res) => {
             }
         });
 
-        res.status(200).json(deals);
+        const enrichedDeals = deals.map(deal => ({
+            ...deal,
+            adminInvited: adminInvitedDeals.has(deal.id)
+        }));
+
+        res.status(200).json(enrichedDeals);
     } catch (error) {
         console.error('Error fetching deals:', error);
         res.status(500).json({ message: 'Server error retrieving deals' });
@@ -315,11 +323,13 @@ export const generateAgreement = async (req, res) => {
         doc.text(`Total Payable to Lender: Rs. ${deal.totalPayableToLender}`);
         doc.text(`Due Date: ${new Date(deal.dueDate).toLocaleDateString()}`).moveDown();
 
+        const isAdminRequired = adminInvitedDeals.has(deal.id);
+
         doc.fontSize(14).text('Status & Signatures', { underline: true }).moveDown(0.5);
         doc.fontSize(12).text(`Agreement Status: ${deal.agreementStatus}`);
         doc.text(`Lender Signed: ${deal.lenderSigned ? 'Yes' : 'No'}`);
         doc.text(`MSME Signed: ${deal.msmeSigned ? 'Yes' : 'No'}`);
-        doc.text(`Buyer acknowledged via platform repayment enforcement.`).moveDown();
+        doc.text(`Admin / Platform Attested: ${deal.buyerSigned ? 'Yes' : isAdminRequired ? 'Pending Admin Attestation' : 'Optional (Not Requested)'}`).moveDown();
 
         doc.fontSize(14).text('Terms & Conditions', { underline: true }).moveDown(0.5);
         doc.fontSize(12).text("The Buyer agrees to repay the invoice amount exclusively via the FinBridge platform escrow system. Direct payment outside the platform is prohibited.", { align: 'justify' });
@@ -362,7 +372,13 @@ export const signAgreement = async (req, res) => {
             data: updateData
         });
 
-        if (updatedDeal.lenderSigned && updatedDeal.msmeSigned) {
+        // If Admin was invited/selected by Lender, agreement requires Lender, MSME, and Admin
+        const isAdminRequired = adminInvitedDeals.has(dealId);
+        const isFullySigned = isAdminRequired
+            ? (updatedDeal.lenderSigned && updatedDeal.msmeSigned && updatedDeal.buyerSigned)
+            : (updatedDeal.lenderSigned && updatedDeal.msmeSigned);
+
+        if (isFullySigned) {
             updatedDeal = await prisma.deal.update({
                 where: { id: dealId },
                 data: {
@@ -380,5 +396,58 @@ export const signAgreement = async (req, res) => {
     } catch (error) {
         console.error('Error signing agreement:', error);
         res.status(500).json({ success: false, message: 'Server error signing agreement' });
+    }
+};
+
+// -------------------------------------------------------------------
+// POST /api/deals/:id/admin-invite
+// Allows Lender to invite Admin to VC and require Admin e-sign / attestation
+// -------------------------------------------------------------------
+export const toggleAdminInvite = async (req, res) => {
+    try {
+        const { id: dealId } = req.params;
+        const deal = await prisma.deal.findUnique({
+            where: { id: dealId },
+            include: {
+                lender: { select: { id: true, name: true } },
+                msme: { select: { id: true, name: true } }
+            }
+        });
+
+        if (!deal) {
+            return res.status(404).json({ success: false, message: 'Deal not found' });
+        }
+
+        if (deal.lenderId !== req.user.id && req.user.role !== 'ADMIN') {
+            return res.status(403).json({ success: false, message: 'Only the Lender of this deal can invite Admin' });
+        }
+
+        const currentlyInvited = adminInvitedDeals.has(dealId);
+        if (currentlyInvited) {
+            adminInvitedDeals.delete(dealId);
+        } else {
+            adminInvitedDeals.add(dealId);
+            const io = req.app.locals.io;
+            if (io) {
+                // Notify Admin panel in real-time
+                io.emit('admin:deal-vc-invite', {
+                    dealId,
+                    lenderName: deal.lender?.name || 'Lender',
+                    msmeName: deal.msme?.name || 'MSME',
+                    timestamp: new Date().toISOString()
+                });
+            }
+        }
+
+        return res.status(200).json({
+            success: true,
+            adminInvited: adminInvitedDeals.has(dealId),
+            message: adminInvitedDeals.has(dealId)
+                ? 'Admin invited to meeting and included in deal agreement signing.'
+                : 'Admin invitation removed.'
+        });
+    } catch (error) {
+        console.error('[toggleAdminInvite]', error);
+        return res.status(500).json({ success: false, message: 'Server error updating admin invite' });
     }
 };

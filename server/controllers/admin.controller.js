@@ -1,4 +1,5 @@
 import prisma from '../config/prisma.js';
+import { adminInvitedDeals } from './dealController.js';
 
 export const getPendingKyc = async (req, res, next) => {
     try {
@@ -235,13 +236,19 @@ export const getAllDeals = async (req, res, next) => {
             include: {
                 invoice: { select: { invoice_number: true, due_date: true, amount: true } },
                 lender: { select: { name: true, email: true } },
-                msme: { select: { name: true, email: true } }
+                msme: { select: { name: true, email: true } },
+                callSession: { select: { id: true, status: true, startedAt: true } }
             }
         });
 
+        const enrichedDeals = deals.map(deal => ({
+            ...deal,
+            adminInvited: adminInvitedDeals.has(deal.id)
+        }));
+
         res.status(200).json({
             success: true,
-            data: deals
+            data: enrichedDeals
         });
     } catch (error) {
         next(error);
@@ -276,39 +283,129 @@ export const getAllInvoices = async (req, res, next) => {
 
 export const getAllBids = async (req, res, next) => {
     try {
-        const bids = await prisma.bid.findMany({
-            orderBy: { created_at: 'desc' },
-            include: {
-                lender: { select: { id: true, name: true, email: true } },
-                invoice: { select: { id: true, invoice_number: true, amount: true, user: { select: { name: true } } } },
-            },
-        });
-        sendAdminData(res, bids);
+        const [bids, offers] = await Promise.all([
+            prisma.bid.findMany({
+                orderBy: { created_at: 'desc' },
+                include: {
+                    lender: { select: { id: true, name: true, email: true } },
+                    invoice: { select: { id: true, invoice_number: true, amount: true, user: { select: { name: true } } } },
+                },
+            }),
+            prisma.fundingOffer.findMany({
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    lender: { select: { id: true, name: true, email: true } },
+                    invoice: { select: { id: true, invoice_number: true, amount: true, user: { select: { name: true } } } },
+                }
+            })
+        ]);
+
+        const mappedOffers = offers.map(o => ({
+            id: o.id,
+            invoice_id: o.invoiceId,
+            lender_id: o.lenderId,
+            interest_rate: o.interestRate,
+            funding_percent: o.invoice?.amount ? Number(((Number(o.fundedAmount) / Number(o.invoice.amount)) * 100).toFixed(1)) : 100,
+            status: o.status,
+            created_at: o.createdAt,
+            lender: o.lender,
+            invoice: o.invoice
+        }));
+
+        const allBids = [...bids, ...mappedOffers].sort(
+            (a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt)
+        );
+
+        sendAdminData(res, allBids);
     } catch (error) { next(error); }
 };
 
 export const getAllTransactions = async (req, res, next) => {
     try {
-        const transactions = await prisma.transaction.findMany({
-            orderBy: { created_at: 'desc' },
-            include: {
-                invoice: { select: { id: true, invoice_number: true, user: { select: { name: true } } } },
-            },
-        });
-        sendAdminData(res, transactions);
+        const [transactions, deals] = await Promise.all([
+            prisma.transaction.findMany({
+                orderBy: { created_at: 'desc' },
+                include: {
+                    invoice: { select: { id: true, invoice_number: true, user: { select: { name: true } } } },
+                },
+            }),
+            prisma.deal.findMany({
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    invoice: { select: { id: true, invoice_number: true, user: { select: { name: true } } } },
+                    lender: { select: { name: true } },
+                    msme: { select: { name: true } }
+                }
+            })
+        ]);
+
+        const mappedDeals = deals.map(d => ({
+            id: `TX-${d.id.slice(0, 8)}`,
+            invoice_id: d.invoiceId,
+            funded_amount: d.fundedAmount,
+            interest: d.interestAmount,
+            status: d.status === 'CLOSED' ? 'COMPLETED' : 'ACTIVE',
+            created_at: d.createdAt,
+            invoice: d.invoice
+        }));
+
+        const allTransactions = [...transactions, ...mappedDeals].sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+
+        sendAdminData(res, allTransactions);
     } catch (error) { next(error); }
 };
 
 export const getRiskAlerts = async (req, res, next) => {
     try {
-        const alerts = await prisma.fraudFlag.findMany({
-            orderBy: { createdAt: 'desc' },
-            include: {
-                user: { select: { id: true, name: true, email: true } },
-                invoice: { select: { id: true, invoice_number: true } },
-            },
+        const [fraudFlags, riskAnalyses] = await Promise.all([
+            prisma.fraudFlag.findMany({
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    user: { select: { id: true, name: true, email: true } },
+                    invoice: { select: { id: true, invoice_number: true } },
+                },
+            }),
+            prisma.invoiceRiskAnalysis.findMany({
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    invoice: {
+                        include: {
+                            user: { select: { id: true, name: true, email: true } }
+                        }
+                    }
+                }
+            })
+        ]);
+
+        const mappedRiskAnalyses = riskAnalyses.map(ra => {
+            const fraudReasons = [];
+            if (ra.breakdownJSON?.fraud) {
+                Object.values(ra.breakdownJSON.fraud).forEach(item => {
+                    if (item?.score > 0 && item?.reason) fraudReasons.push(item.reason);
+                });
+            }
+            const reason = fraudReasons.length > 0
+                ? fraudReasons.join(' • ')
+                : `${ra.fraudRiskBand} Fraud Risk (${ra.fraudScore}/100) • ${ra.creditRiskBand}`;
+
+            return {
+                id: ra.id,
+                invoiceId: ra.invoiceId,
+                invoice: ra.invoice,
+                user: ra.invoice?.user,
+                reason,
+                riskScore: ra.finalScore ?? ra.creditScore,
+                createdAt: ra.createdAt
+            };
         });
-        sendAdminData(res, alerts);
+
+        const allAlerts = [...fraudFlags, ...mappedRiskAnalyses].sort(
+            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
+
+        sendAdminData(res, allAlerts);
     } catch (error) { next(error); }
 };
 

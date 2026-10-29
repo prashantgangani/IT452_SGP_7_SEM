@@ -56,15 +56,25 @@ const AdminDataPage = ({ type }) => {
             <td><span className={`rounded-full border px-2 py-1 text-xs ${statusClass(row.status)}`}>{row.status}</span></td><td>{date(row.due_date)}</td>
         </>;
         if (type === 'bids') return <>
-            <td>{row.invoice?.invoice_number || row.invoice_id.slice(0, 8)}</td><td>{row.lender?.name || '—'}</td><td>{money(row.invoice?.amount)}</td>
-            <td>{row.interest_rate}%</td><td>{date(row.created_at)}</td>
+            <td className="font-medium">{row.invoice?.invoice_number || row.invoice_id?.slice(0, 8) || row.id?.slice(0, 8)}</td>
+            <td>{row.lender?.name || '—'}</td>
+            <td>{money(row.invoice?.amount || row.fundedAmount)}</td>
+            <td><span className="font-semibold text-blue-400">{row.interest_rate ?? row.interestRate}%</span></td>
+            <td>{date(row.created_at || row.createdAt)}</td>
         </>;
         if (type === 'transactions') return <>
-            <td className="font-mono text-xs">{row.id.slice(0, 12)}</td><td>{row.invoice?.invoice_number || '—'}</td><td>{money(row.funded_amount)}</td>
-            <td><span className={`rounded-full border px-2 py-1 text-xs ${statusClass(row.status)}`}>{row.status}</span></td><td>{date(row.created_at)}</td>
+            <td className="font-mono text-xs text-theme-text-muted">{row.id.slice(0, 12)}</td>
+            <td className="font-medium">{row.invoice?.invoice_number || '—'}</td>
+            <td className="font-semibold text-emerald-400">{money(row.funded_amount || row.amount)}</td>
+            <td><span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${statusClass(row.status)}`}>{row.status}</span></td>
+            <td>{date(row.created_at || row.createdAt)}</td>
         </>;
         return <>
-            <td>{row.invoice?.invoice_number || 'Account alert'}</td><td>{row.user?.name || '—'}</td><td>{row.reason}</td><td>{row.riskScore}</td><td>{date(row.createdAt)}</td>
+            <td className="font-medium">{row.invoice?.invoice_number || 'System Signal'}</td>
+            <td>{row.user?.name || '—'}</td>
+            <td className="max-w-xs truncate" title={row.reason}>{row.reason}</td>
+            <td><span className={`rounded-full border px-2 py-0.5 text-xs font-bold ${statusClass(row.riskScore > 60 ? 'HIGH' : row.riskScore > 30 ? 'MEDIUM' : 'LOW')}`}>{row.riskScore}</span></td>
+            <td>{date(row.createdAt || row.created_at)}</td>
         </>;
     };
 

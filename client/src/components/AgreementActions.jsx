@@ -6,18 +6,30 @@ const AgreementActions = ({
     isDownloading,
     isSigning,
     onDownload,
-    onSign
+    onSign,
+    adminInvited,
+    buyerSigned,
 }) => {
+    const isFullyCompleted = adminInvited ? (isSigned && buyerSigned) : isSigned;
+
     return (
-        <div className="flex flex-col gap-2 items-start min-w-[140px]">
-            <span
-                className={`px-3 py-1 rounded-full text-xs font-semibold ${isSigned
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                        : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
+        <div className="flex flex-col gap-1.5 items-start min-w-[140px]">
+            <div className="flex items-center gap-1 flex-wrap">
+                <span
+                    className={`px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${
+                        isFullyCompleted
+                            ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'
                     }`}
-            >
-                {isSigned ? 'SIGNED' : 'PENDING'}
-            </span>
+                >
+                    {isFullyCompleted ? 'SIGNED' : (adminInvited && isSigned ? 'AWAITING ADMIN' : 'PENDING')}
+                </span>
+                {buyerSigned && (
+                    <span className="text-[10px] text-blue-400 font-medium px-1.5 py-0.5 rounded bg-blue-500/10 border border-blue-500/20">
+                        Admin Attested
+                    </span>
+                )}
+            </div>
             <div className="flex items-center gap-2">
                 <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); onDownload(); }}

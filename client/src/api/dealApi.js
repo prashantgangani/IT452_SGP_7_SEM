@@ -75,3 +75,12 @@ export const downloadAgreement = async (id) => {
     document.body.removeChild(a);
     setTimeout(() => window.URL.revokeObjectURL(url), 1000);
 };
+
+export const toggleAdminInvite = async (id) => {
+    try {
+        const response = await api.post(`/deal/${id}/admin-invite`);
+        return response.data;
+    } catch (error) {
+        throw error.response?.data || error;
+    }
+};
