@@ -8,9 +8,13 @@ const AdminLayout = ({ title, children }) => {
 
     return (
         <div className="admin-container">
-            <AdminSidebar open={sidebarOpen} />
+            <AdminSidebar open={sidebarOpen} onToggle={() => setSidebarOpen(!sidebarOpen)} />
             <div className="admin-main">
-                <AdminHeader title={title} onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
+                <AdminHeader
+                    title={title}
+                    sidebarOpen={sidebarOpen}
+                    onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                />
                 <main className="admin-content">
                     {children}
                 </main>

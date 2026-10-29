@@ -10,7 +10,7 @@ const initialNotifications = [
     { id: 3, title: 'Funding milestone', message: 'Invoice funding cycle completed successfully.', type: 'success', time: '1 hour ago' },
 ];
 
-const AdminHeader = ({ title, onToggleSidebar }) => {
+const AdminHeader = ({ title, sidebarOpen, onToggleSidebar }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const panelRef = useRef(null);
@@ -36,9 +36,17 @@ const AdminHeader = ({ title, onToggleSidebar }) => {
     return (
         <header className="admin-header">
             <div className="header-left">
-                <button className="menu-toggle" onClick={onToggleSidebar} aria-label="Toggle sidebar">
-                    <Menu size={24} />
-                </button>
+                {!sidebarOpen && (
+                    <button
+                        type="button"
+                        className="menu-toggle"
+                        onClick={onToggleSidebar}
+                        aria-label="Open sidebar"
+                        title="Open sidebar"
+                    >
+                        <Menu size={20} />
+                    </button>
+                )}
                 <h1 className="page-title">{title}</h1>
             </div>
 

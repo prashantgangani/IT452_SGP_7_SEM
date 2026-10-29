@@ -5,7 +5,7 @@ import { useVideoCall } from '../components/useVideoCall';
 import {
   Mic, MicOff, Video as VideoIcon, VideoOff, PhoneOff,
   ArrowLeft, Loader2, AlertCircle, Users, Send,
-  Disc, Square, Loader, CheckCircle,
+  Disc, Square, Loader, CheckCircle, ShieldCheck,
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
@@ -81,6 +81,7 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
     toggleMute, toggleCam, hangUp, errorMsg,
     messages, sendChatMessage,
     recordingStatus, startRecording, stopRecording,
+    participantsCount, adminInRoom,
   } = useVideoCall({ dealId, roomToken, onEnded: onCallEnded });
 
   const handleHangUp = async () => {
@@ -97,6 +98,8 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
     active: 'text-emerald-400', connecting: 'text-amber-400',
     ringing: 'text-blue-400', error: 'text-rose-400',
   }[status] ?? 'text-white/40';
+
+  const showAdminTile = userRole !== 'ADMIN' && (adminInRoom || participantsCount >= 3);
 
   return (
     <div className="flex flex-col h-full gap-3">
@@ -122,10 +125,18 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
               <CheckCircle size={10} /> Saved
             </span>
           )}
+
+          {adminInRoom && userRole !== 'ADMIN' && (
+            <span className="ml-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-purple-500/10 text-purple-400 text-xs border border-purple-500/20">
+              <ShieldCheck size={11} /> Admin Active
+            </span>
+          )}
         </div>
-        <div className="flex items-center gap-1.5 text-theme-text-muted text-xs">
-          <Users size={12} />
-          <span className="font-mono">{dealId?.slice(0, 8)}…</span>
+        <div className="flex items-center gap-2 text-theme-text-muted text-xs">
+          <span className="flex items-center gap-1">
+            <Users size={12} /> {participantsCount} in room
+          </span>
+          <span className="font-mono">#{dealId?.slice(0, 8)}…</span>
         </div>
       </div>
 
@@ -137,21 +148,58 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
       )}
 
       {/* Video Grid */}
-      <div className="grid grid-cols-2 gap-3 flex-1 min-h-0">
-        {/* Remote */}
-        <div className="relative bg-slate-950 rounded-2xl overflow-hidden border border-theme-border aspect-video shadow-md">
+      <div className={`grid gap-3 flex-1 min-h-0 ${showAdminTile ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-2'}`}>
+        {/* Remote Tile */}
+        <div className="relative bg-slate-950 rounded-2xl overflow-hidden border border-theme-border aspect-video shadow-md flex items-center justify-center">
           <video ref={remoteRef} autoPlay playsInline className="w-full h-full object-cover" />
           <span className="absolute bottom-2 left-3 text-xs text-white/80 bg-black/60 px-2 py-0.5 rounded-lg backdrop-blur-sm">
-            Other Party
+            {userRole === 'ADMIN' ? 'Deal Counterparty' : 'Other Party'}
           </span>
         </div>
-        {/* Local */}
-        <div className="relative bg-slate-900 rounded-2xl overflow-hidden border border-theme-border aspect-video shadow-md">
+
+        {/* Local Tile */}
+        <div className="relative bg-slate-900 rounded-2xl overflow-hidden border border-theme-border aspect-video shadow-md flex items-center justify-center">
           <video ref={localRef} autoPlay playsInline muted className="w-full h-full object-cover scale-x-[-1]" />
-          <span className="absolute bottom-2 left-3 text-xs text-white/80 bg-black/60 px-2 py-0.5 rounded-lg backdrop-blur-sm">
-            You
+          <span className="absolute bottom-2 left-3 text-xs text-white/80 bg-black/60 px-2 py-0.5 rounded-lg backdrop-blur-sm flex items-center gap-1.5">
+            {userRole === 'ADMIN' ? (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span> You (Admin Observer)
+              </>
+            ) : (
+              'You'
+            )}
           </span>
+          {isMuted && (
+            <span className="absolute top-2 right-2 p-1.5 rounded-lg bg-black/60 text-rose-400 backdrop-blur-sm">
+              <MicOff size={14} />
+            </span>
+          )}
         </div>
+
+        {/* Admin Frame (displayed when Admin participates or enters the room) */}
+        {showAdminTile && (
+          <div className="relative bg-gradient-to-b from-purple-950/40 via-slate-900 to-slate-950 rounded-2xl overflow-hidden border border-purple-500/40 aspect-video shadow-lg flex flex-col items-center justify-center p-4">
+            <div className="relative flex items-center justify-center mb-2">
+              <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                <ShieldCheck size={28} className="text-purple-400" />
+              </div>
+              <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
+              </span>
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-white">Platform Administrator</p>
+              <p className="text-[11px] text-purple-300/80 mt-0.5">Live Compliance & Chat Active</p>
+            </div>
+            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-500/30 text-[10px] text-purple-300 font-medium">
+              Attestor
+            </div>
+            <span className="absolute bottom-2 left-3 text-xs text-white/90 bg-black/60 px-2.5 py-0.5 rounded-lg backdrop-blur-sm flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Admin
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Chat */}

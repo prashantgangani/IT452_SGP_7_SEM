@@ -14,7 +14,7 @@ import {
     ShieldCheck,
 } from 'lucide-react';
 
-const AdminSidebar = ({ open }) => {
+const AdminSidebar = ({ open, onToggle }) => {
     const navigate = useNavigate();
     const { logout } = useAuth();
 
@@ -38,13 +38,24 @@ const AdminSidebar = ({ open }) => {
 
     return (
         <aside className={`admin-sidebar ${open ? 'open' : 'closed'}`}>
-            {/* Brand */}
+            {/* Brand Header with Toggle Button */}
             <div className="sidebar-brand">
-                <div className="brand-icon">FB</div>
-                <div>
-                    <div className="brand-name">FinSite</div>
-                    <div className="brand-role">Admin</div>
+                <div className="flex items-center gap-3 min-w-0">
+                    <div className="brand-icon">FB</div>
+                    <div className="brand-text">
+                        <div className="brand-name">FinSite</div>
+                        <div className="brand-role">Admin</div>
+                    </div>
                 </div>
+                <button
+                    type="button"
+                    className="sidebar-toggle-btn"
+                    onClick={onToggle}
+                    aria-label="Close sidebar"
+                    title="Close sidebar"
+                >
+                    <Menu size={18} />
+                </button>
             </div>
 
             {/* Navigation */}

@@ -215,7 +215,7 @@ function App() {
               {/* Meeting Room */}
               <Route path="/meeting/:dealId" element={
                 <FeatureGuard featureKey="COMMUNICATION_MODULE">
-                  <ProtectedRoute allowedRoles={['MSME', 'LENDER']}>
+                  <ProtectedRoute allowedRoles={['MSME', 'LENDER', 'ADMIN']}>
                     <MeetingRoom />
                   </ProtectedRoute>
                 </FeatureGuard>

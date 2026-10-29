@@ -85,6 +85,8 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
   const [errorMsg, setErrorMsg] = useState(null);
   const [messages, setMessages] = useState([]);
   const [recordingStatus, setRecordingStatus] = useState("idle");
+  const [participantsCount, setParticipantsCount] = useState(1);
+  const [adminInRoom, setAdminInRoom] = useState(false);
 
   const localRef = useRef(null);
   const remoteRef = useRef(null);
@@ -411,13 +413,40 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
           }
         });
 
-        // Chat
-        socket.on("call:chat-message", (msg) => {
-          if (!destroyed) setMessages((p) => [...p, msg]);
+        // Participants update
+        socket.on("call:participants-update", (data) => {
+          if (!destroyed && data) {
+            setParticipantsCount(data.count || 1);
+            if (data.participants?.length >= 3) {
+              setAdminInRoom(true);
+            }
+          }
         });
 
-        socket.on("call:peer-left", () => {
-          if (!destroyed) hangUp();
+        // Chat
+        socket.on("call:chat-message", (msg) => {
+          if (!destroyed) {
+            setMessages((p) => [...p, msg]);
+            if (msg.senderRole === "ADMIN") {
+              setAdminInRoom(true);
+            }
+          }
+        });
+
+        socket.on("call:peer-joined", (data) => {
+          if (!destroyed && data?.role === "ADMIN") {
+            setAdminInRoom(true);
+          }
+        });
+
+        socket.on("call:peer-left", (data) => {
+          if (!destroyed) {
+            if (data?.role === "ADMIN") {
+              setAdminInRoom(false);
+            } else if (data?.remainingCount === 0) {
+              hangUp();
+            }
+          }
         });
 
         socket.on("call:error", ({ message }) => {
@@ -468,5 +497,7 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
     recordingStatus,
     startRecording,
     stopRecording,
+    participantsCount,
+    adminInRoom,
   };
 }
