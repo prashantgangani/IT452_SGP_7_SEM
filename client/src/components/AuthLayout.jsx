@@ -55,7 +55,7 @@ const AuthLayout = ({ children, title, subtitle }) => {
                 <motion.div variants={fadeIn} className="flex items-center gap-5 mt-4 mb-6 group cursor-default">
                     <div className="relative flex items-center justify-center w-[4.5rem] h-[4.5rem] rounded-[1.25rem] bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-700 shadow-[0_0_30px_rgba(59,130,246,0.5)] border border-blue-400/40 overflow-hidden shrink-0 transition-all duration-500 group-hover:scale-105 group-hover:shadow-[0_0_45px_rgba(59,130,246,0.7)] group-hover:rotate-3">
                         <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full duration-1000 ease-in-out"></div>
-                        <Landmark className="w-9 h-9 text-theme-text relative z-10 drop-shadow-md" strokeWidth={2.5} />
+                        <Landmark className="w-9 h-9 text-white relative z-10 drop-shadow-md" strokeWidth={2.5} />
                     </div>
                     <h1 className="brand-name">
                         FinSite

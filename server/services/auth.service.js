@@ -24,7 +24,7 @@ export const signup = async (userData) => {
     const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role, kycStatus: user.kycStatus },
         process.env.JWT_SECRET || 'supersecret_fallback',
-        { expiresIn: '1d' }
+        { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
     );
 
     const { password: _, ...userWithoutPassword } = user;
@@ -46,7 +46,7 @@ export const login = async (email, password) => {
     const token = jwt.sign(
         { id: user.id, email: user.email, role: user.role, kycStatus: user.kycStatus },
         process.env.JWT_SECRET || 'supersecret_fallback',
-        { expiresIn: '1d' }
+        { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
     );
 
     const { password: _, ...userWithoutPassword } = user;

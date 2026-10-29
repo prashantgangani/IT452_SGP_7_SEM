@@ -32,15 +32,15 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen relative overflow-hidden bg-slate-950 flex flex-col pt-16">
+      <div className="min-h-screen relative overflow-hidden bg-theme-bg text-theme-text flex flex-col pt-16">
         <div className="absolute top-0 right-1/4 w-[480px] h-[480px] bg-blue-600 rounded-full -z-10 blur-3xl opacity-[0.12] pointer-events-none"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950 via-slate-900/40 to-slate-950 -z-10 pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-blue-500/5 to-transparent -z-10 pointer-events-none"></div>
         <div className="p-8 space-y-8 animate-pulse flex-1 w-full max-w-7xl mx-auto">
-          <div className="h-10 w-64 bg-white/10 rounded-xl"></div>
+          <div className="h-10 w-64 bg-theme-surface border border-theme-border rounded-xl"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => <div key={i} className="h-40 bg-white/5 rounded-2xl border border-white/5"></div>)}
+            {[1, 2, 3].map(i => <div key={i} className="h-40 bg-theme-surface rounded-2xl border border-theme-border"></div>)}
           </div>
-          <div className="h-96 bg-white/5 rounded-2xl border border-white/5"></div>
+          <div className="h-96 bg-theme-surface rounded-2xl border border-theme-border"></div>
         </div>
       </div>
     );
@@ -63,10 +63,10 @@ const PublicRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-theme-bg flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center gap-4">
-          <div className="h-12 w-12 bg-blue-500/20 rounded-full"></div>
-          <div className="h-4 w-24 bg-white/10 rounded-full"></div>
+          <div className="h-12 w-12 bg-blue-500/20 rounded-full border border-blue-500/30"></div>
+          <div className="h-4 w-24 bg-theme-surface border border-theme-border rounded-full"></div>
         </div>
       </div>
     );

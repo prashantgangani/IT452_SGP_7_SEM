@@ -54,7 +54,7 @@ export const login = async (req, res, next) => {
             const token = jwt.sign(
                 controllerUser,
                 process.env.JWT_SECRET || 'supersecret_fallback',
-                { expiresIn: '1d' }
+                { expiresIn: process.env.JWT_EXPIRES_IN || '30d' }
             );
 
             return res.status(200).json({

@@ -211,10 +211,10 @@
     top: calc(100% + 0.7rem);
     right: 0;
     width: min(21rem, 86vw);
-    border: 1px solid rgba(148, 163, 184, 0.18);
+    border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1));
     border-radius: 1rem;
-    background: rgba(15, 23, 42, 0.97);
-    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.45);
+    background: var(--color-bg-elevated, #0f172a);
+    box-shadow: 0 20px 45px var(--color-shadow-base, rgba(0, 0, 0, 0.3));
     overflow: hidden;
     z-index: 30;
 }
@@ -224,7 +224,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 0.9rem 1rem;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1));
     color: var(--color-text-main, #e2e8f0);
     font-weight: 600;
 }
@@ -236,7 +236,7 @@
     height: 1.8rem;
     border: 0;
     border-radius: 0.5rem;
-    background: rgba(148, 163, 184, 0.08);
+    background: var(--color-bg-elevated-hover, rgba(148, 163, 184, 0.08));
     color: var(--color-text-muted, #94a3b8);
     cursor: pointer;
 }
@@ -255,7 +255,7 @@
     width: 100%;
     padding: 0.9rem 1rem;
     border: 0;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1));
     background: transparent;
     color: var(--color-text-main, #e2e8f0);
     text-align: left;
@@ -263,7 +263,7 @@
 }
 
 .notification-item:hover {
-    background: rgba(148, 163, 184, 0.04);
+    background: var(--color-bg-elevated-hover, rgba(148, 163, 184, 0.04));
 }
 
 .notification-icon {
@@ -384,6 +384,21 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
+}
+
+.activity-panel,
+.alert-panel {
+    border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1));
+    border-radius: 1rem;
+    background: var(--color-bg-elevated, #0f172a);
+    padding: 1.5rem;
+}
+
+.panel-title {
+    margin: 0;
+    color: var(--color-text-main, #e2e8f0);
+    font-size: 1.05rem;
+    font-weight: 700;
 }
 
 .kpi-card {

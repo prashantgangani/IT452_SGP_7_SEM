@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
     LineChart,
@@ -215,7 +215,7 @@ const MSMEDashboard = () => {
             <div className="absolute top-0 right-1/4 w-[480px] h-[480px] bg-blue-600 rounded-full -z-10 blur-3xl opacity-[0.12] pointer-events-none" />
             <div className="absolute bottom-1/4 -left-24 w-[400px] h-[400px] bg-cyan-500 rounded-full -z-10 blur-3xl opacity-[0.08] pointer-events-none" />
             {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-theme-bg via-theme-elevated/40 to-theme-bg -z-10 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-theme-bg via-theme-surface/40 to-theme-bg -z-10 pointer-events-none" />
 
             <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 {loading && <FinbridgeLoading userName={user?.name} />}
@@ -230,13 +230,13 @@ const MSMEDashboard = () => {
                     {/* Hero Header */}
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
                         <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-medium mb-4">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-medium mb-4">
                                 <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
                                 MSME Dashboard
                             </div>
                             <h1 className="text-4xl font-semibold text-theme-text tracking-tight">
                                 Welcome back,{' '}
-                                <span className="text-blue-400">{user?.name || 'Partner'}</span>
+                                <span className="text-blue-500 dark:text-blue-400">{user?.name || 'Partner'}</span>
                             </h1>
                             <p className="text-theme-text-muted mt-2 text-sm">Here's what's happening with your business today.</p>
                         </div>
@@ -244,7 +244,7 @@ const MSMEDashboard = () => {
                         {user?.kycStatus === 'VERIFIED' ? (
                             <button
                                 onClick={() => navigate('/upload-invoice')}
-                                className="shrink-0 inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-theme-text font-medium px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-blue-500/20 text-sm"
+                                className="shrink-0 inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-medium px-5 py-2.5 rounded-xl transition-all shadow-lg shadow-blue-500/20 text-sm"
                             >
                                 <Plus size={15} />
                                 Create Invoice
@@ -253,12 +253,12 @@ const MSMEDashboard = () => {
                             <div className="shrink-0 flex flex-col items-end gap-2 text-right">
                                 <button
                                     onClick={() => navigate('/kyc')}
-                                    className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-theme-text font-medium px-6 py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm animate-pulse"
+                                    className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-medium px-6 py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 text-sm animate-pulse"
                                 >
                                     <Briefcase size={16} />
                                     Complete KYC to Unlock Features
                                 </button>
-                                <span className="text-amber-400/80 text-xs font-medium bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
+                                <span className="text-amber-600 dark:text-amber-400 text-xs font-medium bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20">
                                     Current Status: {user?.kycStatus?.replace('_', ' ') || 'NOT SUBMITTED'}
                                 </span>
                             </div>
@@ -271,7 +271,7 @@ const MSMEDashboard = () => {
                             title="Total Revenue"
                             value={stats?.totalRevenue}
                             icon={DollarSign}
-                            trend={stats?.totalRevenue !== 'â‚¹0' ? "up" : null}
+                            trend={stats?.totalRevenue !== '₹0' ? "up" : null}
                             color="success"
                         />
                         <StatCard
@@ -300,7 +300,7 @@ const MSMEDashboard = () => {
                     {/* Charts Section */}
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         {/* Revenue Graph */}
-                        <div className="lg:col-span-2 rounded-2xl border border-theme-border bg-theme-elevated/20 backdrop-blur-xl p-6 min-w-0 shadow-lg shadow-theme-border">
+                        <div className="lg:col-span-2 rounded-2xl border border-theme-border bg-theme-surface backdrop-blur-xl p-6 min-w-0 shadow-lg">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-base font-semibold text-theme-text">Revenue Trend</h2>
                                 <span className="text-xs text-theme-text-muted bg-theme-surface-hover border border-theme-border px-2.5 py-1 rounded-full">Last 6 months</span>
@@ -309,13 +309,13 @@ const MSMEDashboard = () => {
                                 {stats?.revenueData && stats.revenueData.length > 0 && stats.revenueData.some(d => d.revenue > 0) ? (
                                     <ResponsiveContainer width="100%" height="100%" minWidth={1} minHeight={1}>
                                         <LineChart data={stats.revenueData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" opacity={1} />
-                                            <XAxis dataKey="name" stroke="#475569" fontSize={11} tickLine={false} axisLine={false} />
-                                            <YAxis stroke="#475569" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(value) => `â‚¹${value}`} />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" opacity={1} />
+                                            <XAxis dataKey="name" stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} />
+                                            <YAxis stroke="#64748b" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${value}`} />
                                             <Tooltip
-                                                contentStyle={{ backgroundColor: '#0c1526', borderColor: '#1e293b', color: '#fff', borderRadius: '12px', fontSize: '13px' }}
-                                                itemStyle={{ color: '#93c5fd' }}
-                                                labelStyle={{ color: '#ffffff', fontWeight: 600 }}
+                                                contentStyle={{ backgroundColor: 'var(--color-bg-elevated, #0c1526)', borderColor: 'var(--color-border-subtle, #1e293b)', color: 'var(--color-text-main, #fff)', borderRadius: '12px', fontSize: '13px' }}
+                                                itemStyle={{ color: '#3b82f6' }}
+                                                labelStyle={{ color: 'var(--color-text-main, #ffffff)', fontWeight: 600 }}
                                             />
                                             <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2.5} dot={false} activeDot={{ r: 5, fill: '#3b82f6', strokeWidth: 0 }} />
                                         </LineChart>
@@ -330,7 +330,7 @@ const MSMEDashboard = () => {
                         </div>
 
                         {/* Risk Distribution */}
-                        <div className="rounded-2xl border border-theme-border bg-theme-elevated/20 backdrop-blur-xl p-6 min-w-0 shadow-lg shadow-theme-border">
+                        <div className="rounded-2xl border border-theme-border bg-theme-surface backdrop-blur-xl p-6 min-w-0 shadow-lg">
                             <div className="flex items-center justify-between mb-6">
                                 <h2 className="text-base font-semibold text-theme-text">Risk Distribution</h2>
                                 <span className="text-xs text-theme-text-muted bg-theme-surface-hover border border-theme-border px-2.5 py-1 rounded-full">All time</span>
@@ -354,7 +354,7 @@ const MSMEDashboard = () => {
                                                     ))}
                                                 </Pie>
                                                 <Tooltip
-                                                    contentStyle={{ backgroundColor: '#0c1526', borderColor: '#1e293b', color: '#fff', borderRadius: '12px', fontSize: '13px' }}
+                                                    contentStyle={{ backgroundColor: 'var(--color-bg-elevated, #0c1526)', borderColor: 'var(--color-border-subtle, #1e293b)', color: 'var(--color-text-main, #fff)', borderRadius: '12px', fontSize: '13px' }}
                                                 />
                                             </PieChart>
                                         </ResponsiveContainer>
@@ -385,7 +385,7 @@ const MSMEDashboard = () => {
 
                     {/* Pending Offers Section */}
                     {user?.kycStatus === 'VERIFIED' && (
-                        <div className="rounded-2xl border border-theme-border bg-theme-elevated/20 backdrop-blur-xl p-6 shadow-lg shadow-theme-border">
+                        <div className="rounded-2xl border border-theme-border bg-theme-surface backdrop-blur-xl p-6 shadow-lg">
                             <h2 className="text-base font-semibold text-theme-text mb-5">Received Funding Offers</h2>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
@@ -403,7 +403,7 @@ const MSMEDashboard = () => {
                                             </tr>
                                         ) : offers.map((offer) => (
                                             <tr key={offer.id} className="hover:bg-theme-surface-hover transition-colors">
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-blue-400">
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400">
                                                     #{offer.invoice?.invoice_number || offer.invoiceId.substring(0, 6)}
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-theme-text">
@@ -422,14 +422,14 @@ const MSMEDashboard = () => {
                                                     <div className="flex items-center gap-2">
                                                         <button
                                                             onClick={() => setSelectedLender(offer.lender)}
-                                                            className="px-3 py-1.5 text-xs font-semibold rounded bg-slate-500/20 text-theme-text-muted hover:bg-slate-500/30 hover:text-theme-text transition-colors flex items-center gap-1.5"
+                                                            className="px-3 py-1.5 text-xs font-semibold rounded bg-theme-surface-hover border border-theme-border text-theme-text-muted hover:text-theme-text transition-colors flex items-center gap-1.5"
                                                         >
                                                             <Eye size={13} /> View
                                                         </button>
                                                         <button
                                                             onClick={() => handleAcceptOffer(offer.id)}
                                                             disabled={isAcceptingOffer}
-                                                            className="px-3 py-1.5 text-xs font-semibold rounded bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors disabled:opacity-50"
+                                                            className="px-3 py-1.5 text-xs font-semibold rounded bg-blue-500/20 text-blue-600 dark:text-blue-400 hover:bg-blue-500/30 transition-colors disabled:opacity-50"
                                                         >
                                                             {isAcceptingOffer ? 'Accepting...' : 'Accept Offer'}
                                                         </button>
@@ -445,7 +445,7 @@ const MSMEDashboard = () => {
 
                     {/* Active Deals Section */}
                     {user?.kycStatus === 'VERIFIED' && (
-                        <div className="rounded-2xl border border-theme-border bg-theme-elevated/20 backdrop-blur-xl p-6 shadow-lg shadow-theme-border">
+                        <div className="rounded-2xl border border-theme-border bg-theme-surface backdrop-blur-xl p-6 shadow-lg">
                             <h2 className="text-base font-semibold text-theme-text mb-5">Active Deals & Repayments</h2>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
@@ -463,7 +463,7 @@ const MSMEDashboard = () => {
                                             </tr>
                                         ) : deals.map((deal) => (
                                             <tr key={deal.id} className="hover:bg-theme-surface-hover transition-colors">
-                                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-blue-400">
+                                                <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-blue-600 dark:text-blue-400">
                                                     #{deal.invoice?.invoice_number || deal.invoiceId.substring(0, 6)}
                                                 </td>
                                                 <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-theme-text">
@@ -498,7 +498,7 @@ const MSMEDashboard = () => {
                                                             <button
                                                                 onClick={() => handleRepayDeal(deal.id)}
                                                                 disabled={isRepayingDeal || wallet.availableBalance < deal.totalPayableToLender}
-                                                                className="px-3 py-1.5 text-xs font-semibold rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 transition-colors disabled:opacity-50"
+                                                                className="px-3 py-1.5 text-xs font-semibold rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/30 transition-colors disabled:opacity-50"
                                                                 title={wallet.availableBalance < deal.totalPayableToLender ? "Insufficient wallet balance" : "Repay this deal"}
                                                             >
                                                                 {isRepayingDeal ? 'Processing...' : 'Repay Deal'}
@@ -514,7 +514,7 @@ const MSMEDashboard = () => {
                                                                 ) : (
                                                                     <button
                                                                         disabled
-                                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700/50"
+                                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded bg-theme-surface-hover text-theme-text-muted cursor-not-allowed border border-theme-border"
                                                                         title="Wait for Lender to start the meeting"
                                                                     >
                                                                         <Video size={13} className="opacity-50" /> Wait for Lender
@@ -533,7 +533,7 @@ const MSMEDashboard = () => {
                     )}
 
                     {/* Quick Actions */}
-                    <div className="rounded-2xl border border-theme-border bg-theme-elevated/20 backdrop-blur-xl p-6 relative overflow-hidden shadow-lg shadow-theme-border">
+                    <div className="rounded-2xl border border-theme-border bg-theme-surface backdrop-blur-xl p-6 relative overflow-hidden shadow-lg">
                         {user?.kycStatus !== 'VERIFIED' && (
                             <div className="absolute inset-0 bg-theme-bg/60 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center">
                                 <div className="bg-theme-surface border border-amber-500/20 rounded-xl p-4 flex flex-col items-center gap-2 shadow-2xl">
@@ -618,9 +618,9 @@ const MSMEDashboard = () => {
                     <div className="relative w-full max-w-lg bg-theme-surface border border-theme-border rounded-2xl shadow-2xl flex flex-col animate-fade-in-up">
 
                         {/* Header */}
-                        <div className="p-5 border-b border-theme-border flex items-start justify-between bg-gradient-to-r from-blue-900/20 to-transparent rounded-t-2xl">
+                        <div className="p-5 border-b border-theme-border flex items-start justify-between bg-gradient-to-r from-blue-500/10 to-transparent rounded-t-2xl">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
                                     <Briefcase size={20} />
                                 </div>
                                 <div>
@@ -635,14 +635,14 @@ const MSMEDashboard = () => {
                                     </p>
                                 </div>
                             </div>
-                            <button onClick={() => setSelectedLender(null)} className="p-1.5 rounded-lg hover:bg-white/10 text-theme-text-muted hover:text-theme-text transition-colors">
+                            <button onClick={() => setSelectedLender(null)} className="p-1.5 rounded-lg hover:bg-theme-surface-hover text-theme-text-muted hover:text-theme-text transition-colors">
                                 <X size={20} />
                             </button>
                         </div>
 
                         {/* Body */}
                         <div className="p-6">
-                            <h3 className="text-sm font-semibold text-theme-text uppercase tracking-wider mb-4 text-blue-400 flex items-center gap-2">
+                            <h3 className="text-sm font-semibold text-theme-text uppercase tracking-wider mb-4 text-blue-600 dark:text-blue-400 flex items-center gap-2">
                                 <ShieldCheck size={16} /> Verified Profile Details
                             </h3>
 

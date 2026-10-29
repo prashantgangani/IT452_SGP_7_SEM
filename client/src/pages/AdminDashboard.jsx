@@ -110,22 +110,22 @@ const AdminDashboard = () => {
 
             {/* Pending MSME KYC Section Link */}
             <section className="admin-section">
-                <div className="bg-gradient-to-r from-blue-900/40 to-slate-900 border border-blue-500/20 rounded-2xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+                <div className="bg-gradient-to-r from-blue-500/10 via-theme-surface to-theme-surface border border-blue-500/30 rounded-2xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden backdrop-blur-sm">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl -z-10 opacity-50"></div>
                     <div className="flex items-center gap-6 z-10">
-                        <div className="w-16 h-16 bg-blue-500/20 text-blue-400 rounded-2xl flex items-center justify-center shrink-0 border border-blue-500/30">
+                        <div className="w-16 h-16 bg-blue-500/20 text-blue-500 dark:text-blue-400 rounded-2xl flex items-center justify-center shrink-0 border border-blue-500/30 shadow-md">
                             <ShieldCheck size={32} />
                         </div>
                         <div>
                             <h2 className="text-2xl font-bold text-theme-text mb-2">MSME Verification Center</h2>
-                            <p className="text-white/60 text-sm max-w-lg leading-relaxed">
+                            <p className="text-theme-text-muted text-sm max-w-lg leading-relaxed">
                                 Review new MSME onboarding requests, verify GST & PAN details against official databases, and manage approvals in a dedicated workspace.
                             </p>
                         </div>
                     </div>
                     <Link
                         to="/admin/kyc"
-                        className="shrink-0 flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-theme-text px-6 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-blue-500/20 active:scale-95 group z-10"
+                        className="shrink-0 flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30 active:scale-95 group z-10"
                     >
                         Launch Verification System
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -135,22 +135,22 @@ const AdminDashboard = () => {
 
             {/* Pending Lender KYC Section Link */}
             <section className="admin-section">
-                <div className="bg-gradient-to-r from-emerald-900/40 to-slate-900 border border-emerald-500/20 rounded-2xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl relative overflow-hidden">
+                <div className="bg-gradient-to-r from-emerald-500/10 via-theme-surface to-theme-surface border border-emerald-500/30 rounded-2xl p-8 flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden backdrop-blur-sm">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -z-10 opacity-50"></div>
                     <div className="flex items-center gap-6 z-10">
-                        <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center shrink-0 border border-emerald-500/30">
+                        <div className="w-16 h-16 bg-emerald-500/20 text-emerald-500 dark:text-emerald-400 rounded-2xl flex items-center justify-center shrink-0 border border-emerald-500/30 shadow-md">
                             <Briefcase size={32} />
                         </div>
                         <div>
                             <h2 className="text-2xl font-bold text-theme-text mb-2">Lender Verification Center</h2>
-                            <p className="text-white/60 text-sm max-w-lg leading-relaxed">
+                            <p className="text-theme-text-muted text-sm max-w-lg leading-relaxed">
                                 Review new Lender profiles, cross-reference RBI and corporate identities, and grant marketplace access securely.
                             </p>
                         </div>
                     </div>
                     <Link
                         to="/admin/lender-kyc"
-                        className="shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-theme-text px-6 py-3 rounded-xl font-semibold transition-all shadow-lg hover:shadow-emerald-500/20 active:scale-95 group z-10"
+                        className="shrink-0 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 active:scale-95 group z-10"
                     >
                         Launch Lender Verification
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />

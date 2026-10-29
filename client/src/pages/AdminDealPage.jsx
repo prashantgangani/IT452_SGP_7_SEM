@@ -68,25 +68,25 @@ const AdminDealPage = () => {
 
     return (
         <AdminLayout title="Deal Management">
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-xl overflow-hidden">
-                <div className="p-6 border-b border-slate-800 flex justify-between items-center">
+            <div className="bg-theme-surface rounded-2xl border border-theme-border shadow-xl overflow-hidden">
+                <div className="p-6 border-b border-theme-border flex justify-between items-center">
                     <div>
-                        <h2 className="text-xl font-bold text-white">All Deals</h2>
-                        <p className="text-sm text-slate-400 mt-1">Manage platform deals and process repayments</p>
+                        <h2 className="text-xl font-bold text-theme-text">All Deals</h2>
+                        <p className="text-sm text-theme-text-muted mt-1">Manage platform deals and process repayments</p>
                     </div>
                     <button
                         onClick={fetchDeals}
-                        className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors border border-slate-700"
+                        className="p-2 text-theme-text-muted hover:text-theme-text hover:bg-theme-surface-hover rounded-xl transition-colors border border-theme-border"
                         title="Refresh List"
                     >
-                        <RefreshCw size={20} className={loading && !processingId ? "animate-spin text-blue-400" : ""} />
+                        <RefreshCw size={20} className={loading && !processingId ? "animate-spin text-blue-500" : ""} />
                     </button>
                 </div>
 
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>
-                            <tr className="bg-slate-800/50 border-b border-slate-800 text-xs uppercase tracking-wider text-slate-400">
+                            <tr className="bg-theme-surface-hover/80 border-b border-theme-border text-xs uppercase tracking-wider text-theme-text-muted">
                                 <th className="p-4 font-medium">Deal ID</th>
                                 <th className="p-4 font-medium">Lender</th>
                                 <th className="p-4 font-medium">MSME</th>
@@ -96,39 +96,39 @@ const AdminDealPage = () => {
                                 <th className="p-4 font-medium text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800">
+                        <tbody className="divide-y divide-theme-border">
                             {loading && !processingId && deals.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="p-8 text-center text-slate-400">Loading deals...</td>
+                                    <td colSpan="7" className="p-8 text-center text-theme-text-muted">Loading deals...</td>
                                 </tr>
                             ) : deals.length === 0 ? (
                                 <tr>
-                                    <td colSpan="7" className="p-8 text-center text-slate-400">No deals found in the system.</td>
+                                    <td colSpan="7" className="p-8 text-center text-theme-text-muted">No deals found in the system.</td>
                                 </tr>
                             ) : (
                                 deals.map(deal => (
-                                    <tr key={deal.id} className="hover:bg-slate-800/20 transition-colors">
-                                        <td className="p-4 text-sm text-slate-300 font-mono">
+                                    <tr key={deal.id} className="hover:bg-theme-surface-hover/40 transition-colors">
+                                        <td className="p-4 text-sm text-theme-text-muted font-mono">
                                             {deal.id.slice(0, 8)}...
                                         </td>
-                                        <td className="p-4 text-sm text-white">
+                                        <td className="p-4 text-sm text-theme-text font-medium">
                                             {deal.lender?.name || 'Unknown'}
                                         </td>
-                                        <td className="p-4 text-sm text-white">
+                                        <td className="p-4 text-sm text-theme-text font-medium">
                                             {deal.msme?.name || 'Unknown'}
                                         </td>
-                                        <td className="p-4 text-sm text-white text-right font-medium">
+                                        <td className="p-4 text-sm text-theme-text text-right font-medium">
                                             ₹{parseFloat(deal.fundedAmount || 0).toLocaleString()}
                                         </td>
                                         <td className="p-4">
                                             <div className="flex flex-col gap-1 items-start">
-                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${deal.lenderSigned && deal.msmeSigned ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-500'}`}>
+                                                <span className={`text-[10px] font-semibold px-2 py-0.5 rounded ${deal.lenderSigned && deal.msmeSigned ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20'}`}>
                                                     {deal.lenderSigned && deal.msmeSigned ? 'SIGNED' : 'PENDING'}
                                                 </span>
                                                 <button
                                                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDownloadAgreement(deal.id); }}
                                                     disabled={isDownloadingAgreement === deal.id}
-                                                    className="text-[10px] text-blue-400 hover:text-blue-300 hover:underline mt-1"
+                                                    className="text-[10px] text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 hover:underline mt-1 font-medium"
                                                 >
                                                     Download
                                                 </button>
@@ -146,7 +146,7 @@ const AdminDealPage = () => {
                                                     disabled={processingId === deal.id}
                                                     className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${processingId === deal.id
                                                         ? 'bg-blue-600/50 text-white cursor-not-allowed'
-                                                        : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg hover:shadow-blue-500/20 active:scale-95'
+                                                        : 'bg-blue-600 hover:bg-blue-500 text-white shadow-md hover:shadow-blue-500/20 active:scale-95'
                                                         }`}
                                                 >
                                                     {processingId === deal.id ? (

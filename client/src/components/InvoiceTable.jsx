@@ -122,7 +122,7 @@ const InvoiceTable = ({ invoices, onCreate, showFundButton = false }) => {
                                                     setSelectedInvoice(invoice);
                                                     setIsViewOpen(true);
                                                 }}
-                                                className="h-9 px-3 rounded-lg text-sm font-medium text-blue-400 bg-blue-500/10 border border-blue-500/20 hover:bg-white/10 hover:border-white/20 transition-colors"
+                                                className="h-9 px-3 rounded-lg text-sm font-medium text-blue-500 dark:text-blue-400 bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500/20 hover:border-blue-500/40 transition-colors"
                                             >
                                                 View
                                             </button>
@@ -138,8 +138,8 @@ const InvoiceTable = ({ invoices, onCreate, showFundButton = false }) => {
                                                         setIsFundOpen(true);
                                                     }}
                                                     className={`h-9 px-3 rounded-lg text-sm font-medium transition-colors ${user?.kycStatus === 'VERIFIED'
-                                                            ? 'text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-white/10 hover:border-white/20 cursor-pointer'
-                                                            : 'text-emerald-400/50 bg-emerald-500/5 border border-emerald-500/10 cursor-not-allowed opacity-60'
+                                                            ? 'text-emerald-500 dark:text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 hover:border-emerald-500/40 cursor-pointer'
+                                                            : 'text-emerald-500/50 dark:text-emerald-400/50 bg-emerald-500/5 border border-emerald-500/10 cursor-not-allowed opacity-60'
                                                         }`}
                                                 >
                                                     Fund

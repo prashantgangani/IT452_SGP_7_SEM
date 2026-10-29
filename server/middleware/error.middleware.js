@@ -6,7 +6,7 @@ const errorHandler = (err, req, res, next) => {
 
     if (err.name === 'ValidationError') {
         statusCode = 400;
-    } else if (err.name === 'UnauthorizedError' || err.name === 'JsonWebTokenError') {
+    } else if (err.name === 'UnauthorizedError' || err.name === 'JsonWebTokenError' || err.name === 'TokenExpiredError') {
         statusCode = 401;
     } else if (err.name === 'ForbiddenError') {
         statusCode = 403;

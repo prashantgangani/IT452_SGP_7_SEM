@@ -121,8 +121,8 @@ const Navbar = () => {
 
     const linkClass = ({ isActive }) =>
         isActive
-            ? 'px-3 py-2 rounded-lg text-sm font-medium text-theme-text bg-theme-elevated/40 border border-theme-border transition-all block w-full text-left md:w-auto md:inline-block'
-            : 'px-3 py-2 rounded-lg text-sm font-medium text-theme-text-muted hover:text-theme-text hover:bg-theme-elevated/20 transition-all block w-full text-left md:w-auto md:inline-block';
+            ? 'px-3 py-2 rounded-lg text-sm font-medium text-theme-text bg-theme-surface-hover border border-theme-border shadow-xs transition-all block w-full text-left md:w-auto md:inline-block'
+            : 'px-3 py-2 rounded-lg text-sm font-medium text-theme-text-muted hover:text-theme-text hover:bg-theme-surface-hover transition-all block w-full text-left md:w-auto md:inline-block';
 
     return (
         <nav className="sticky top-0 z-50 w-full backdrop-blur-xl bg-theme-bg/80 border-b border-theme-border px-6 py-3">
@@ -139,7 +139,7 @@ const Navbar = () => {
                 <div className="md:hidden flex items-center gap-3">
                     <ThemeToggle />
                     <ProfileBadge user={user} onLogout={handleLogout} profilePath="/profile" />
-                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-theme-text p-1 hover:bg-theme-elevated/20 rounded-md">
+                    <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-theme-text p-1 hover:bg-theme-surface-hover rounded-md">
                         {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
@@ -173,12 +173,12 @@ const Navbar = () => {
                                 to="/lender/kyc"
                                 className={({ isActive }) =>
                                     `px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all flex items-center gap-1.5 ${isActive
-                                        ? 'bg-blue-500/20 border-blue-500/40 text-blue-400'
+                                        ? 'bg-blue-500/20 border-blue-500/40 text-blue-600 dark:text-blue-400'
                                         : user.kycStatus === 'VERIFIED'
-                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
+                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'
                                             : user.kycStatus === 'IN_PROGRESS'
-                                                ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 hover:bg-blue-500/20'
-                                                : 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500/20'
+                                                ? 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20'
+                                                : 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'
                                     }`
                                 }
                             >
@@ -223,12 +223,12 @@ const Navbar = () => {
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 className={({ isActive }) =>
                                     `px-3 py-2 rounded-lg text-sm font-semibold border transition-all flex items-center gap-2 ${isActive
-                                        ? 'bg-blue-500/20 border-blue-500/40 text-blue-400'
+                                        ? 'bg-blue-500/20 border-blue-500/40 text-blue-600 dark:text-blue-400'
                                         : user.kycStatus === 'VERIFIED'
-                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
+                                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
                                             : user.kycStatus === 'IN_PROGRESS'
-                                                ? 'bg-blue-500/10 border-blue-500/30 text-blue-400'
-                                                : 'bg-amber-500/10 border-amber-500/30 text-amber-400'
+                                                ? 'bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400'
+                                                : 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
                                     }`
                                 }
                             >

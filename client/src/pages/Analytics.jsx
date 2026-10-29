@@ -19,10 +19,10 @@ import FinbridgeLoading from '../components/FinbridgeLoading';
 const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 
 const tooltipStyle = {
-    backgroundColor: '#0f172a',
-    border: '1px solid rgba(148, 163, 184, 0.18)',
+    backgroundColor: 'var(--color-bg-elevated, #0f172a)',
+    border: '1px solid var(--color-border-subtle, rgba(148, 163, 184, 0.18))',
     borderRadius: '12px',
-    color: '#fff',
+    color: 'var(--color-text-main, #fff)',
 };
 
 const MetricCard = ({ icon: Icon, label, value, hint, positive = true, color = 'blue' }) => {
@@ -33,12 +33,12 @@ const MetricCard = ({ icon: Icon, label, value, hint, positive = true, color = '
     };
 
     return (
-    <article className="rounded-2xl border border-theme-border bg-theme-elevated/20 p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-theme-border-focus hover:bg-theme-elevated/35">
+    <article className="rounded-2xl border border-theme-border bg-theme-surface p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-theme-border-focus hover:bg-theme-surface-hover">
         <div className="mb-5 flex items-start justify-between gap-3">
             <div className={`grid h-11 w-11 place-items-center rounded-xl border ${colorClasses[color] || colorClasses.blue}`}>
                 <Icon size={20} />
             </div>
-            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-semibold ${positive ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400' : 'border-rose-500/20 bg-rose-500/10 text-rose-400'}`}>
+            <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-semibold ${positive ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' : 'border-rose-500/20 bg-rose-500/10 text-rose-500 dark:text-rose-400'}`}>
                 {positive ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
                 {hint}
             </span>
@@ -115,7 +115,7 @@ const Analytics = () => {
                         <h1 className="text-3xl font-bold tracking-tight text-theme-text sm:text-4xl">Performance overview</h1>
                         <p className="mt-2 max-w-2xl text-sm text-theme-text-muted">Track invested capital, returns, deal activity, and portfolio health in one place.</p>
                     </div>
-                    <div className="rounded-xl border border-theme-border bg-theme-elevated/20 px-4 py-3 text-right">
+                    <div className="rounded-xl border border-theme-border bg-theme-surface px-4 py-3 text-right shadow-sm">
                         <p className="text-xs uppercase tracking-wider text-theme-text-muted">Available balance</p>
                         <p className="mt-1 text-lg font-bold text-theme-text">{formatCurrency(wallet.availableBalance)}</p>
                     </div>
@@ -129,7 +129,7 @@ const Analytics = () => {
                 </section>
 
                 <section className="mt-6 grid grid-cols-1 gap-6 xl:grid-cols-5">
-                    <article className="min-w-0 rounded-2xl border border-theme-border bg-theme-elevated/20 p-5 sm:p-6 xl:col-span-3">
+                    <article className="min-w-0 rounded-2xl border border-theme-border bg-theme-surface p-5 sm:p-6 xl:col-span-3 shadow-sm">
                         <div className="mb-5 flex items-start justify-between gap-4">
                             <div>
                                 <h2 className="text-lg font-semibold text-theme-text">Capital growth</h2>
@@ -150,7 +150,7 @@ const Analytics = () => {
                                             <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid stroke="#334155" strokeDasharray="3 3" opacity={0.35} />
+                                    <CartesianGrid stroke="#334155" strokeDasharray="3 3" opacity={0.25} />
                                     <XAxis dataKey="month" stroke="#94a3b8" tickLine={false} axisLine={false} />
                                     <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} tickFormatter={(value) => `₹${Math.round(value / 1000)}k`} />
                                     <Tooltip contentStyle={tooltipStyle} formatter={(value, name) => [formatCurrency(value), name === 'invested' ? 'Invested' : 'Returns']} />
@@ -161,7 +161,7 @@ const Analytics = () => {
                         </div>
                     </article>
 
-                    <article className="min-w-0 rounded-2xl border border-theme-border bg-theme-elevated/20 p-5 sm:p-6 xl:col-span-2">
+                    <article className="min-w-0 rounded-2xl border border-theme-border bg-theme-surface p-5 sm:p-6 xl:col-span-2 shadow-sm">
                         <div className="mb-5">
                             <h2 className="text-lg font-semibold text-theme-text">Deal status</h2>
                             <p className="mt-1 text-xs text-theme-text-muted">Current portfolio distribution</p>
@@ -169,7 +169,7 @@ const Analytics = () => {
                         <div className="h-72 min-h-0">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={statusData} layout="vertical" margin={{ left: 8, right: 12 }}>
-                                    <CartesianGrid stroke="#334155" strokeDasharray="3 3" opacity={0.35} horizontal={false} />
+                                    <CartesianGrid stroke="#334155" strokeDasharray="3 3" opacity={0.25} horizontal={false} />
                                     <XAxis type="number" allowDecimals={false} stroke="#94a3b8" tickLine={false} axisLine={false} />
                                     <YAxis type="category" dataKey="status" stroke="#94a3b8" tickLine={false} axisLine={false} width={70} />
                                     <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(59,130,246,0.08)' }} />
@@ -180,7 +180,7 @@ const Analytics = () => {
                     </article>
                 </section>
 
-                <section className="mt-6 rounded-2xl border border-theme-border bg-theme-elevated/20 p-5 sm:p-6">
+                <section className="mt-6 rounded-2xl border border-theme-border bg-theme-surface p-5 sm:p-6 shadow-sm">
                     <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h2 className="text-lg font-semibold text-theme-text">Portfolio summary</h2>

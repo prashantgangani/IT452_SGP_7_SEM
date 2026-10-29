@@ -211,7 +211,7 @@ const InvoiceDetailPanel = ({ invoice, onClose, onFundInvoice }) => {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={onClose} />
-            <div className="relative w-full max-w-4xl max-h-[90vh] bg-slate-900/60 backdrop-blur-xl border border-theme-border rounded-2xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 overflow-hidden">
+            <div className="relative w-full max-w-4xl max-h-[90vh] bg-theme-surface backdrop-blur-xl border border-theme-border rounded-2xl shadow-2xl flex flex-col animate-in fade-in zoom-in-95 overflow-hidden">
 
                 {/* Header */}
                 <div className="p-6 border-b border-theme-border flex items-start justify-between bg-theme-surface-hover">
@@ -276,7 +276,7 @@ const InvoiceDetailPanel = ({ invoice, onClose, onFundInvoice }) => {
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm text-theme-text-muted">Credit Score</span>
                                         <div className="flex items-center gap-3">
-                                            <div className="w-32 h-2 bg-slate-900 rounded-full overflow-hidden">
+                                            <div className="w-32 h-2 bg-theme-bg rounded-full overflow-hidden border border-theme-border">
                                                 <div className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-emerald-500" style={{ width: `${invoice.creditScore}%` }} />
                                             </div>
                                             <span className="text-sm font-bold text-theme-text">{invoice.creditScore}/100</span>
@@ -311,12 +311,12 @@ const InvoiceDetailPanel = ({ invoice, onClose, onFundInvoice }) => {
                                     {docs.map((doc, i) => (
                                         <div key={i} className="flex items-center justify-between p-3 bg-theme-surface-hover border border-theme-border rounded-lg hover:border-blue-500/40 transition-colors cursor-pointer group">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-400">
+                                                <div className="p-2 bg-blue-500/10 rounded-lg text-blue-600 dark:text-blue-400">
                                                     <FileText size={16} />
                                                 </div>
-                                                <span className="text-sm text-gray-300 group-hover:text-theme-text transition-colors">{doc}</span>
+                                                <span className="text-sm text-theme-text group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{doc}</span>
                                             </div>
-                                            <Download size={16} className="text-theme-text-muted group-hover:text-blue-400 transition-colors" />
+                                            <Download size={16} className="text-theme-text-muted group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                                         </div>
                                     ))}
                                 </div>
@@ -333,7 +333,7 @@ const InvoiceDetailPanel = ({ invoice, onClose, onFundInvoice }) => {
                                 onFundInvoice(invoice);
                             }
                         }}
-                        className="w-full py-3.5 text-base font-semibold rounded-xl bg-blue-600 hover:bg-blue-500 text-theme-text transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
+                        className="w-full py-3.5 text-base font-semibold rounded-xl bg-blue-600 hover:bg-blue-500 text-white transition-all shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
                     >
                         Fund This Invoice <ArrowUpRight size={18} />
                     </button>
@@ -391,8 +391,8 @@ const OverviewSection = ({ onExploreMarketplace, wallet, myDeals }) => {
                                 <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                                 <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`} />
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '8px' }}
-                                    itemStyle={{ color: '#fff' }}
+                                    contentStyle={{ backgroundColor: 'var(--color-bg-elevated, #0f172a)', borderColor: 'var(--color-border-subtle, #334155)', color: 'var(--color-text-main, #fff)', borderRadius: '8px' }}
+                                    itemStyle={{ color: 'var(--color-text-main, #fff)' }}
                                     formatter={(v, name) => [`₹${Number(v).toLocaleString('en-IN')}`, name === 'invested' ? 'Invested' : 'Returns']}
                                 />
                                 <Line type="monotone" dataKey="invested" stroke="#3b82f6" strokeWidth={2.5} dot={{ fill: '#3b82f6', r: 3 }} activeDot={{ r: 5 }} />
@@ -452,7 +452,7 @@ const OverviewSection = ({ onExploreMarketplace, wallet, myDeals }) => {
             <div className="flex justify-center pt-2 pb-4">
                 <button
                     onClick={onExploreMarketplace}
-                    className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-theme-text font-semibold flex items-center gap-2.5 shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:-translate-y-0.5 transition-all duration-300"
+                    className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold flex items-center gap-2.5 shadow-[0_0_20px_rgba(56,189,248,0.3)] hover:shadow-[0_0_30px_rgba(56,189,248,0.5)] hover:-translate-y-0.5 transition-all duration-300"
                 >
                     <Zap size={18} />
                     Explore Marketplace
@@ -579,7 +579,7 @@ const MarketplaceSection = ({ onViewInvoice, onFundInvoice, availableInvoices = 
                                                         e.stopPropagation();
                                                         onFundInvoice(inv);
                                                     }}
-                                                    className="h-9 px-3 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-600 to-sky-500 text-theme-text flex items-center gap-1 shadow-[0_0_10px_rgba(56,189,248,0.2)] hover:shadow-[0_0_15px_rgba(56,189,248,0.4)] transition-all">
+                                                    className="h-9 px-3 rounded-lg text-sm font-semibold bg-gradient-to-r from-blue-600 to-sky-500 text-white flex items-center gap-1 shadow-[0_0_10px_rgba(56,189,248,0.2)] hover:shadow-[0_0_15px_rgba(56,189,248,0.4)] transition-all">
                                                     <Zap size={13} /> Fund
                                                 </button>
                                             </div>
@@ -1188,7 +1188,7 @@ const LenderDashboard = () => {
                     {fundInvoice && (
                         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
                             <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setFundInvoice(null)}></div>
-                            <div className="relative bg-slate-900/90 backdrop-blur-xl border border-theme-border rounded-2xl w-full max-w-md p-6 shadow-2xl animate-fade-in-up">
+                            <div className="relative bg-theme-surface backdrop-blur-xl border border-theme-border rounded-2xl w-full max-w-md p-6 shadow-2xl animate-fade-in-up">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="text-xl font-bold text-theme-text">Make Funding Offer</h3>
                                     <button onClick={() => setFundInvoice(null)} className="text-theme-text-muted hover:text-theme-text transition-colors">
@@ -1237,7 +1237,7 @@ const LenderDashboard = () => {
                                         <button
                                             type="submit"
                                             disabled={isSubmittingOffer}
-                                            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-theme-text font-semibold flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(56,189,248,0.3)] hover:shadow-[0_0_25px_rgba(56,189,248,0.5)] transition-all"
+                                            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(56,189,248,0.3)] hover:shadow-[0_0_25px_rgba(56,189,248,0.5)] transition-all"
                                         >
                                             {isSubmittingOffer ? (
                                                 <><div className="h-4 w-4 border-2 border-theme-border border-t-white rounded-full animate-spin"></div> Sending...</>
@@ -1254,7 +1254,7 @@ const LenderDashboard = () => {
                     {/* Page Header — same pattern as MSMEDashboard */}
                     <div className="flex flex-col md:flex-row md:items-start justify-between gap-5">
                         <div>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-300 text-xs font-medium mb-4">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 text-xs font-medium mb-4">
                                 <span className="h-1.5 w-1.5 rounded-full bg-blue-400 animate-pulse" />
                                 Lender Dashboard
                             </div>
@@ -1272,7 +1272,7 @@ const LenderDashboard = () => {
 
                     {/* Tab Navigation */}
                     <div className="border-b border-theme-border pb-2">
-                        <div className="flex gap-2 overflow-x-auto">
+                        <div className="flex gap-2 overflow-x-auto no-scrollbar">
                             {TABS.map(tab => {
                                 const Icon = tab.icon;
                                 const isActive = activeTab === tab.id;

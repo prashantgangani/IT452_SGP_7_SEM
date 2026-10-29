@@ -18,7 +18,7 @@ const WalletLoadingOverlayV2 = () => {
 
     return (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-[1px]">
-            <div className="bg-slate-900/55 border border-theme-border rounded-2xl px-7 py-6 shadow-[0_0_70px_rgba(0,0,0,0.55)] backdrop-blur-xl flex flex-col items-center text-center w-[92%] max-w-md">
+            <div className="bg-theme-surface/90 border border-theme-border rounded-2xl px-7 py-6 shadow-2xl backdrop-blur-xl flex flex-col items-center text-center w-[92%] max-w-md">
 
                 {/* Loader Icon Block */}
                 <div className="relative h-20 w-20 mb-6">
@@ -41,8 +41,8 @@ const WalletLoadingOverlayV2 = () => {
                     </div>
 
                     {/* Center Wallet Badge */}
-                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-slate-950/60 border border-blue-400/30 flex items-center justify-center shadow-[0_0_18px_rgba(59,130,246,0.35)]">
-                        <Wallet className="text-blue-400" size={20} />
+                    <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-12 w-12 rounded-full bg-theme-bg border border-blue-400/30 flex items-center justify-center shadow-lg">
+                        <Wallet className="text-blue-500 dark:text-blue-400" size={20} />
                     </div>
                 </div>
 

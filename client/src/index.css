@@ -62,6 +62,9 @@
     --color-theme-surface: var(--color-bg-elevated);
     --color-theme-surface-hover: var(--color-bg-elevated-hover);
     --color-theme-surface-active: var(--color-bg-elevated-active);
+    --color-theme-elevated: var(--color-bg-elevated);
+    --color-theme-elevated-hover: var(--color-bg-elevated-hover);
+    --color-theme-elevated-active: var(--color-bg-elevated-active);
 
     --color-theme-border: var(--color-border-subtle);
     --color-theme-border-hover: var(--color-border-hover);
@@ -127,4 +130,46 @@
     a {
         color: inherit;
     }
+}
+
+/* Hide scrollbars utility */
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Remove default number input spin buttons */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Hide third-party browser extension scroll/stepper widgets */
+#scroll-to-top,
+.scroll-to-top,
+#scrollToTop,
+.scrollToTop,
+#scroll_to_top,
+.scroll_to_top,
+[id*="scroll-to-top"],
+[id*="scrollToTop"],
+[class*="scroll-to-top"],
+[class*="scrollToTop"],
+[id*="scroll_to_top"],
+#stt-container,
+.stt-container,
+#pratiksoni-scroll-to-top,
+.pratiksoni-scroll-to-top,
+#scroll-buttons,
+.scroll-buttons,
+.scroll-top-and-bottom,
+[id*="scroll-top-and-bottom"] {
+    display: none !important;
 }

@@ -151,12 +151,12 @@ const AdminLenderKycPage = () => {
                                 <p className="text-sm">No Lender KYC records found.</p>
                             </div>
                         ) : (
-                            <div className="divide-y divide-white/5">
+                            <div className="divide-y divide-theme-border">
                                 {filteredRequests.map(req => (
                                     <button
                                         key={req.id}
                                         onClick={() => setSelectedRequest(req)}
-                                        className={`w-full text-left p-4 transition-colors hover:bg-white/[0.04] ${selectedRequest?.id === req.id ? 'bg-blue-500/10 border-l-2 border-blue-500' : 'border-l-2 border-transparent'}`}
+                                        className={`w-full text-left p-4 transition-colors hover:bg-theme-surface-hover ${selectedRequest?.id === req.id ? 'bg-blue-500/10 border-l-2 border-blue-500' : 'border-l-2 border-transparent'}`}
                                     >
                                         <div className="flex justify-between items-start mb-1">
                                             <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ const AdminLenderKycPage = () => {
                 </div>
 
                 {/* Right Panel - Details */}
-                <div className="lg:col-span-2 bg-theme-surface border border-white/5 rounded-2xl flex flex-col overflow-hidden relative">
+                <div className="lg:col-span-2 bg-theme-surface border border-theme-border rounded-2xl flex flex-col overflow-hidden relative shadow-xl">
                     {!selectedRequest ? (
                         <div className="flex-1 flex flex-col items-center justify-center text-theme-text-muted h-full">
                             <FileText size={48} className="mb-4 opacity-20" />
@@ -185,10 +185,10 @@ const AdminLenderKycPage = () => {
                     ) : (
                         <div className="flex flex-col h-full overflow-hidden">
                             {/* Header */}
-                            <div className="p-6 border-b border-white/5 bg-gradient-to-r from-blue-900/20 to-transparent">
+                            <div className="p-6 border-b border-theme-border bg-gradient-to-r from-blue-500/10 to-transparent">
                                 <div className="flex justify-between items-start">
                                     <div className="flex gap-4 items-center">
-                                        <div className="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400">
+                                        <div className="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-500 dark:text-blue-400 border border-blue-500/30 shadow-md">
                                             <Briefcase size={24} />
                                         </div>
                                         <div>
@@ -203,7 +203,7 @@ const AdminLenderKycPage = () => {
                                     {selectedRequest.verificationStatus === 'IN_REVIEW' && (
                                         <>
                                             {rejectingId === selectedRequest.id ? (
-                                                <div className="flex items-center gap-2 bg-theme-bg p-1.5 rounded-lg border border-red-500/30">
+                                                <div className="flex items-center gap-2 bg-theme-bg p-1.5 rounded-xl border border-red-500/40 shadow-sm">
                                                     <input
                                                         type="text"
                                                         placeholder="Reason for rejection..."
@@ -212,28 +212,28 @@ const AdminLenderKycPage = () => {
                                                         onChange={(e) => setRejectReason(e.target.value)}
                                                         autoFocus
                                                     />
-                                                    <button onClick={() => { setRejectingId(null); setRejectReason(''); }} className="text-theme-text-muted hover:text-theme-text-muted p-1">
+                                                    <button onClick={() => { setRejectingId(null); setRejectReason(''); }} className="text-theme-text-muted hover:text-theme-text p-1">
                                                         <XCircle size={16} />
                                                     </button>
-                                                    <button onClick={() => handleReject(selectedRequest.id)} className="bg-red-500 hover:bg-red-600 text-theme-text px-3 py-1.5 rounded text-sm font-medium transition-colors">
+                                                    <button onClick={() => handleReject(selectedRequest.id)} className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors shadow-sm">
                                                         Confirm
                                                     </button>
                                                 </div>
                                             ) : (
-                                                <>
+                                                <div className="flex items-center gap-3">
                                                     <button
                                                         onClick={() => setRejectingId(selectedRequest.id)}
-                                                        className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-theme-text rounded-xl transition-all font-medium text-sm border border-red-500/20"
+                                                        className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all font-medium text-sm border border-red-500/20 shadow-sm"
                                                     >
                                                         <XCircle size={16} /> Reject
                                                     </button>
                                                     <button
                                                         onClick={() => handleApprove(selectedRequest.id)}
-                                                        className="flex items-center gap-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-theme-text rounded-xl transition-all font-medium text-sm shadow-lg shadow-emerald-500/20"
+                                                        className="flex items-center gap-2 px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl transition-all font-medium text-sm shadow-md shadow-emerald-500/20"
                                                     >
                                                         <CheckCircle size={16} /> Approve Lender
                                                     </button>
-                                                </>
+                                                </div>
                                             )}
                                         </>
                                     )}

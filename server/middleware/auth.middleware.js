@@ -24,6 +24,13 @@ export const requireAuth = (req, res, next) => {
 
         next();
     } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            return res.status(401).json({
+                success: false,
+                message: 'Token expired. Please login again.',
+                error: { code: 'TOKEN_EXPIRED' }
+            });
+        }
         next(error);
     }
 };

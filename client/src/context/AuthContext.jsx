@@ -28,10 +28,8 @@ export const AuthProvider = ({ children }) => {
                         localStorage.setItem('user', JSON.stringify(data.user));
                     }
                 } catch (error) {
-                    console.error("Session verification failed:", error);
-                    // Optional: Logout if token is invalid?
-                    // For now, keep local state but warn
-                    if (!storedUser) logout(); // Only logout if no local user fallback
+                    console.warn("Session verification failed (token expired or invalid):", error);
+                    logout();
                 }
             }
             setLoading(false);

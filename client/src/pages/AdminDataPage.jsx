@@ -75,7 +75,7 @@ const AdminDataPage = ({ type }) => {
                     : ['Invoice', 'User', 'Reason', 'Risk score', 'Created'];
 
     return <AdminLayout title={config.title}>
-        <section className="rounded-2xl border border-theme-border bg-theme-elevated/20 shadow-sm">
+        <section className="rounded-2xl border border-theme-border bg-theme-surface shadow-xl">
             <div className="flex flex-col gap-4 border-b border-theme-border p-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3"><div className="grid h-11 w-11 place-items-center rounded-xl bg-blue-500/10 text-blue-400"><Icon size={20} /></div><div><h2 className="text-xl font-bold text-theme-text">{config.title}</h2><p className="text-sm text-theme-text-muted">{config.description}</p></div></div>
                 <div className="flex gap-2"><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Search ${config.title.toLowerCase()}...`} className="w-full rounded-lg border border-theme-border bg-theme-bg px-3 py-2 text-sm text-theme-text outline-none focus:border-blue-500 sm:w-56" /><button onClick={load} className="rounded-lg border border-theme-border p-2 text-theme-text-muted hover:text-theme-text" title="Refresh"><RefreshCw size={17} className={loading ? 'animate-spin' : ''} /></button></div>

@@ -187,7 +187,7 @@ const LenderOnboardingPage = () => {
                         const updatedUser = { ...user, kycStatus: 'NOT_SUBMITTED' };
                         login(token, updatedUser);
                         setStep(1);
-                    }} className="mt-6 bg-red-600 hover:bg-red-500 text-theme-text px-6 py-2.5 rounded-xl font-medium">Resubmit KYC</button>
+                    }} className="mt-6 bg-red-600 hover:bg-red-500 text-white px-6 py-2.5 rounded-xl font-medium shadow-md shadow-red-500/20">Resubmit KYC</button>
                     <button onClick={() => navigate('/lender')} className="block mx-auto mt-2 text-theme-text-muted hover:text-theme-text px-6 py-2.5 text-sm">Return to Dashboard</button>
                 </div>
             </div>
@@ -262,7 +262,7 @@ const LenderOnboardingPage = () => {
                                             type="button"
                                             disabled={!formData.lenderType}
                                             onClick={() => setStep(2)}
-                                            className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-theme-text px-8 py-2.5 rounded-xl font-medium transition-colors"
+                                            className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white px-8 py-2.5 rounded-xl font-medium transition-colors shadow-md shadow-blue-500/20"
                                         >
                                             Continue
                                         </button>
@@ -491,7 +491,7 @@ const LenderOnboardingPage = () => {
                                         <button
                                             type="submit"
                                             disabled={loading}
-                                            className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-60 text-theme-text px-8 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-emerald-500/20"
+                                            className="bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 disabled:opacity-60 text-white px-8 py-2.5 rounded-xl font-medium transition-all shadow-lg shadow-emerald-500/20"
                                         >
                                             Submit KYC
                                         </button>

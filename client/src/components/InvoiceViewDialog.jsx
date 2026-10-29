@@ -116,13 +116,13 @@ export default function InvoiceViewDialog({ invoice, onClose, onFund, showFundBu
               <div className="flex items-center justify-between pt-2">
                 <div>
                   <span className="text-xs text-theme-text-muted uppercase tracking-wider font-medium block mb-1.5">Risk Level</span>
-                  <span className={`inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-md capitalize border ${invoice.riskLevel === 'low' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' : invoice.riskLevel === 'medium' ? 'bg-amber-500/15 text-amber-400 border-amber-500/30' : 'bg-rose-500/15 text-rose-400 border-rose-500/30'}`}>{(invoice.riskLevel || 'N/A').toLowerCase()} Risk</span>
+                  <span className={`inline-flex items-center text-xs font-bold px-2.5 py-1 rounded-md capitalize border ${invoice.riskLevel === 'low' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30' : invoice.riskLevel === 'medium' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30' : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30'}`}>{(invoice.riskLevel || 'N/A').toLowerCase()} Risk</span>
                 </div>
 
                 {showFundButton && (
                   <div className="text-right">
                     <span className="text-xs text-theme-text-muted uppercase tracking-wider font-medium block mb-1.5">Expected Return</span>
-                    <div className="text-theme-text font-bold text-base text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md inline-block border border-emerald-500/20">{invoice.expectedReturn ? `${invoice.expectedReturn}%` : 'N/A'}</div>
+                    <div className="font-bold text-base text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-md inline-block border border-emerald-500/20">{invoice.expectedReturn ? `${invoice.expectedReturn}%` : 'N/A'}</div>
                   </div>
                 )}
               </div>

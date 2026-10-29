@@ -23,6 +23,13 @@ export const ThemeProvider = ({ children }) => {
     useEffect(() => {
         // Apply theme to HTML tag
         document.documentElement.setAttribute('data-theme', theme);
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.documentElement.classList.remove('light');
+        } else {
+            document.documentElement.classList.add('light');
+            document.documentElement.classList.remove('dark');
+        }
         // Persist
         localStorage.setItem('finbridge-theme', theme);
     }, [theme]);
