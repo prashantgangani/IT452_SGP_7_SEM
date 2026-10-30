@@ -678,6 +678,7 @@ const InvestmentsSection = ({ myDeals, onFundDeal, isSubmittingDeal, onSignAgree
                                                 onSign={() => onSignAgreement(deal.id)}
                                             />
                                         </td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
                                             {deal.status === 'ACTIVE' ? (
                                                 <div className="flex items-center gap-2 flex-wrap">
                                                     <span className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1 shadow-xs">

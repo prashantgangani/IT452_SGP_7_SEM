@@ -342,6 +342,16 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
           if (role === "ADMIN") setAdminInRoom(true);
           const pc = getOrCreatePeerConnection(from, role, name);
           try {
+            const isPolite = (socket.id || "") < from;
+            if (pc.signalingState === "have-local-offer") {
+              if (!isPolite) {
+                console.log("[useVideoCall] Glare detected; impolite peer waiting for answer from", from);
+                return;
+              }
+              console.log("[useVideoCall] Glare detected; polite peer rolling back local offer for", from);
+              await pc.setLocalDescription({ type: "rollback" });
+            }
+
             await pc.setRemoteDescription(new RTCSessionDescription(offer));
             
             // Flush buffered ICE candidates for this peer
