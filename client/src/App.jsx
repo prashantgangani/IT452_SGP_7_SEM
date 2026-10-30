@@ -156,33 +156,33 @@ function App() {
                 </ProtectedRoute>
               } />
 
-              {/* Protected Routes - Admin */}
+              {/* Protected Routes - Admin & Controller */}
               <Route path="/admin" element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}>
                   <AdminDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/admin/kyc" element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}>
                   <AdminKycPage />
                 </ProtectedRoute>
               } />
               <Route path="/admin/lender-kyc" element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}>
                   <AdminLenderKycPage />
                 </ProtectedRoute>
               } />
               <Route path="/admin/deals" element={
-                <ProtectedRoute allowedRoles={['ADMIN']}>
+                <ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}>
                   <AdminDealPage />
                 </ProtectedRoute>
               } />
-              <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="users" /></ProtectedRoute>} />
-              <Route path="/admin/invoices" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="invoices" /></ProtectedRoute>} />
-              <Route path="/admin/bids" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="bids" /></ProtectedRoute>} />
-              <Route path="/admin/transactions" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="transactions" /></ProtectedRoute>} />
-              <Route path="/admin/alerts" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="alerts" /></ProtectedRoute>} />
-              <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminSettingsPage /></ProtectedRoute>} />
+              <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}><AdminDataPage type="users" /></ProtectedRoute>} />
+              <Route path="/admin/invoices" element={<ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}><AdminDataPage type="invoices" /></ProtectedRoute>} />
+              <Route path="/admin/bids" element={<ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}><AdminDataPage type="bids" /></ProtectedRoute>} />
+              <Route path="/admin/transactions" element={<ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}><AdminDataPage type="transactions" /></ProtectedRoute>} />
+              <Route path="/admin/alerts" element={<ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}><AdminDataPage type="alerts" /></ProtectedRoute>} />
+              <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['ADMIN', 'CONTROLLER']}><AdminSettingsPage /></ProtectedRoute>} />
 
               {/* Protected Route - Controller & Admin */}
               <Route path="/system-control" element={

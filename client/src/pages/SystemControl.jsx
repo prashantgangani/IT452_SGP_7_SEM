@@ -71,6 +71,12 @@ const SystemControl = () => {
                         <p className="mt-2 text-sm text-theme-text-muted">Master Governance Dashboard: Enable/Disable Application Modules</p>
                     </div>
                     <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => navigate('/admin')}
+                            className="bg-blue-600/10 text-blue-500 hover:bg-blue-600/20 border border-blue-500/20 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                        >
+                            Admin Operations
+                        </button>
                         <ThemeToggle />
                         <button
                             onClick={handleLogout}

@@ -5,7 +5,7 @@ import { requireAuth } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
 
 router.use(requireAuth);
-router.use(requireRole(['ADMIN']));
+router.use(requireRole(['ADMIN', 'CONTROLLER']));
 
 router.get('/stats', adminController.getDashboardStats);
 router.get('/kyc/pending', adminController.getPendingKyc);
