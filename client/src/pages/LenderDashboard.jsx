@@ -678,16 +678,11 @@ const InvestmentsSection = ({ myDeals, onFundDeal, isSubmittingDeal, onSignAgree
                                                 onSign={() => onSignAgreement(deal.id)}
                                             />
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
                                             {deal.status === 'ACTIVE' ? (
                                                 <div className="flex items-center gap-2 flex-wrap">
-                                                    <button
-                                                        onClick={() => onFundDeal(deal.id)}
-                                                        disabled={isSubmittingDeal}
-                                                        className={`px-3 py-1.5 text-xs font-semibold rounded-lg flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20 transition-all box-border ${isSubmittingDeal ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                                                        {isSubmittingDeal ? <div className="h-3 w-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> : <Zap size={13} />}
-                                                        {isSubmittingDeal ? 'Wait...' : 'Fund'}
-                                                    </button>
+                                                    <span className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1 shadow-xs">
+                                                        <CheckCircle size={12} /> Funded
+                                                    </span>
                                                     <FeatureGuard featureKey="COMMUNICATION_MODULE">
                                                         <button
                                                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.open(`/meeting/${deal.id}`, '_blank'); }}
@@ -860,8 +855,19 @@ const AnalyticsSection = () => (
                                 ))}
                             </Pie>
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '8px' }}
-                                formatter={(v) => [`${v}%`]}
+                                content={({ active, payload }) => {
+                                    if (active && payload && payload.length) {
+                                        const item = payload[0];
+                                        return (
+                                            <div className="bg-slate-900/95 border border-slate-700/80 px-3 py-1.5 rounded-xl shadow-xl backdrop-blur-md flex items-center gap-2">
+                                                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.payload.color }} />
+                                                <span className="text-xs font-medium text-white">{item.name}:</span>
+                                                <span className="text-xs font-bold text-blue-400">{item.value}%</span>
+                                            </div>
+                                        );
+                                    }
+                                    return null;
+                                }}
                             />
                         </PieChart>
                     </ResponsiveContainer>
@@ -870,7 +876,7 @@ const AnalyticsSection = () => (
                     {DUMMY_SECTOR_DATA.map(item => (
                         <div key={item.name} className="flex items-center gap-1.5">
                             <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                            <span className="text-xs text-theme-text-muted">{item.name}</span>
+                            <span className="text-xs text-theme-text-muted">{item.name} ({item.value}%)</span>
                         </div>
                     ))}
                 </div>
@@ -1189,7 +1195,7 @@ const LenderDashboard = () => {
             <div className="absolute bottom-1/4 -left-24 w-[400px] h-[400px] bg-cyan-500 rounded-full -z-10 blur-3xl opacity-[0.08] pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-b from-theme-bg via-theme-elevated/40 to-theme-bg -z-10 pointer-events-none" />
 
-            <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+            <div className="relative w-full max-w-[96rem] mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Skeleton loader — same as MSMEDashboard */}
                 {loading && <FinbridgeLoading userName={user?.name} />}
 

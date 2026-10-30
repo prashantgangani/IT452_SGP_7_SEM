@@ -74,10 +74,38 @@ function ChatPanel({ messages, onSend }) {
   );
 }
 
+// ─── Remote Peer Tile ───────────────────────────────────────────────────────
+function RemotePeerTile({ peer }) {
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current && peer.stream) {
+      videoRef.current.srcObject = peer.stream;
+    }
+  }, [peer.stream]);
+
+  const isAdmin = peer.role === 'ADMIN';
+
+  return (
+    <div className={`relative bg-slate-950 rounded-2xl overflow-hidden border ${isAdmin ? 'border-purple-500/50 shadow-purple-500/10' : 'border-theme-border'} aspect-video shadow-md flex items-center justify-center`}>
+      <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
+      <span className={`absolute bottom-2 left-3 text-xs px-2.5 py-0.5 rounded-lg backdrop-blur-sm flex items-center gap-1.5 ${isAdmin ? 'bg-purple-950/80 text-purple-200 border border-purple-500/30' : 'bg-black/60 text-white/90'}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${isAdmin ? 'bg-purple-400' : 'bg-emerald-400'}`}></span>
+        {isAdmin ? 'Platform Administrator' : (peer.name || (peer.role === 'LENDER' ? 'Lender' : 'MSME Partner'))}
+      </span>
+      {isAdmin && (
+        <span className="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-purple-500/20 border border-purple-500/30 text-[10px] text-purple-300 font-medium">
+          Attestor
+        </span>
+      )}
+    </div>
+  );
+}
+
 // ─── Active Call Room ─────────────────────────────────────────────────────────
 function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
   const {
-    localRef, remoteRef, status, isMuted, isCamOff,
+    localRef, remoteRef, remotePeers = [], status, isMuted, isCamOff,
     toggleMute, toggleCam, hangUp, errorMsg,
     messages, sendChatMessage,
     recordingStatus, startRecording, stopRecording,
@@ -99,7 +127,9 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
     ringing: 'text-blue-400', error: 'text-rose-400',
   }[status] ?? 'text-white/40';
 
-  const showAdminTile = userRole !== 'ADMIN' && (adminInRoom || participantsCount >= 3);
+  const hasAdminPeer = remotePeers.some(p => p.role === 'ADMIN');
+  const showAdminCard = userRole !== 'ADMIN' && adminInRoom && !hasAdminPeer;
+  const totalTiles = (remotePeers.length || 1) + 1 + (showAdminCard ? 1 : 0);
 
   return (
     <div className="flex flex-col h-full gap-3">
@@ -126,7 +156,7 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
             </span>
           )}
 
-          {adminInRoom && userRole !== 'ADMIN' && (
+          {(adminInRoom || hasAdminPeer) && userRole !== 'ADMIN' && (
             <span className="ml-2 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-purple-500/10 text-purple-400 text-xs border border-purple-500/20">
               <ShieldCheck size={11} /> Admin Active
             </span>
@@ -148,14 +178,21 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
       )}
 
       {/* Video Grid */}
-      <div className={`grid gap-3 flex-1 min-h-0 ${showAdminTile ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-2'}`}>
-        {/* Remote Tile */}
-        <div className="relative bg-slate-950 rounded-2xl overflow-hidden border border-theme-border aspect-video shadow-md flex items-center justify-center">
-          <video ref={remoteRef} autoPlay playsInline className="w-full h-full object-cover" />
-          <span className="absolute bottom-2 left-3 text-xs text-white/80 bg-black/60 px-2 py-0.5 rounded-lg backdrop-blur-sm">
-            {userRole === 'ADMIN' ? 'Deal Counterparty' : 'Other Party'}
-          </span>
-        </div>
+      <div className={`grid gap-3 flex-1 min-h-0 ${totalTiles >= 3 ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-2'}`}>
+        {/* Render all remote peers */}
+        {remotePeers.length > 0 ? (
+          remotePeers.map((peer) => (
+            <RemotePeerTile key={peer.peerId} peer={peer} />
+          ))
+        ) : (
+          <div className="relative bg-slate-950/60 rounded-2xl overflow-hidden border border-dashed border-theme-border aspect-video shadow-md flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-3">
+              <Users size={22} className="text-blue-400 animate-pulse" />
+            </div>
+            <p className="text-sm font-semibold text-theme-text">Waiting for counterparty to join…</p>
+            <p className="text-xs text-theme-text-muted mt-1">Other party or administrator will appear once connected</p>
+          </div>
+        )}
 
         {/* Local Tile */}
         <div className="relative bg-slate-900 rounded-2xl overflow-hidden border border-theme-border aspect-video shadow-md flex items-center justify-center">
@@ -176,8 +213,8 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
           )}
         </div>
 
-        {/* Admin Frame (displayed when Admin participates or enters the room) */}
-        {showAdminTile && (
+        {/* Admin Frame (displayed when Admin is active in room without active video stream) */}
+        {showAdminCard && (
           <div className="relative bg-gradient-to-b from-purple-950/40 via-slate-900 to-slate-950 rounded-2xl overflow-hidden border border-purple-500/40 aspect-video shadow-lg flex flex-col items-center justify-center p-4">
             <div className="relative flex items-center justify-center mb-2">
               <div className="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center shadow-lg shadow-purple-500/20">

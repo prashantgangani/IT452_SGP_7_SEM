@@ -85,40 +85,65 @@ export function registerCallSocket(io) {
         participants: Object.keys(room.participants),
       });
 
-      if (currentUsersCount === 1) {
-        // First person → waiting
-        socket.emit("call:joined");
-      } else {
-        // Second or third person → both are ready
-        socket.emit("call:joined");
-        
-        const otherSocketIds = Object.values(room.participants).filter(id => id !== socket.id);
-        if (otherSocketIds.length > 0) {
-          otherSocketIds.forEach(peerSocketId => {
-            callNs.to(peerSocketId).emit("call:peer-joined", {
-              newPeerId: socket.id,
-              userId: socket.userId,
-              role: socket.userRole || socket.role,
-            });
-          });
-          socket.emit("call:peer-ready");
-        }
-      }
+      const otherSocketIds = Object.values(room.participants).filter(id => id !== socket.id);
+
+      // Send the newly joined socket info about existing peers
+      const existingPeers = otherSocketIds.map(sId => {
+        const peerSocket = callNs.sockets.get(sId);
+        return {
+          peerId: sId,
+          userId: peerSocket?.userId,
+          role: peerSocket?.userRole || peerSocket?.role,
+          name: peerSocket?.userName,
+        };
+      });
+
+      socket.emit("call:joined", { existingPeers });
+
+      // Notify existing peers that a new peer joined
+      otherSocketIds.forEach(peerSocketId => {
+        callNs.to(peerSocketId).emit("call:peer-joined", {
+          peerId: socket.id,
+          userId: socket.userId,
+          role: socket.userRole || socket.role,
+          name: socket.userName,
+        });
+      });
     });
 
     // ─── SDP OFFER ────────────────────────────────────────
-    socket.on("call:offer", ({ offer }) => {
-      socket.to(socket.currentRoom).emit("call:offer", { offer });
+    socket.on("call:offer", ({ to, offer }) => {
+      const payload = {
+        from: socket.id,
+        role: socket.userRole || socket.role,
+        name: socket.userName,
+        offer,
+      };
+      if (to) {
+        callNs.to(to).emit("call:offer", payload);
+      } else {
+        socket.to(socket.currentRoom).emit("call:offer", payload);
+      }
     });
 
     // ─── SDP ANSWER ───────────────────────────────────────
-    socket.on("call:answer", ({ answer }) => {
-      socket.to(socket.currentRoom).emit("call:answer", { answer });
+    socket.on("call:answer", ({ to, answer }) => {
+      const payload = { from: socket.id, answer };
+      if (to) {
+        callNs.to(to).emit("call:answer", payload);
+      } else {
+        socket.to(socket.currentRoom).emit("call:answer", payload);
+      }
     });
 
     // ─── ICE CANDIDATES ──────────────────────────────────
-    socket.on("call:ice-candidate", ({ candidate }) => {
-      socket.to(socket.currentRoom).emit("call:ice-candidate", { candidate });
+    socket.on("call:ice-candidate", ({ to, candidate }) => {
+      const payload = { from: socket.id, candidate };
+      if (to) {
+        callNs.to(to).emit("call:ice-candidate", payload);
+      } else {
+        socket.to(socket.currentRoom).emit("call:ice-candidate", payload);
+      }
     });
 
     // ─── CHAT ─────────────────────────────────────────────
@@ -158,6 +183,7 @@ export function registerCallSocket(io) {
           }
         }
         s.to(s.currentRoom).emit("call:peer-left", {
+          peerId: s.id,
           userId: s.roomUserId,
           role: s.userRole || s.role,
           remainingCount,

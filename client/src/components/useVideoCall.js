@@ -87,31 +87,34 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
   const [recordingStatus, setRecordingStatus] = useState("idle");
   const [participantsCount, setParticipantsCount] = useState(1);
   const [adminInRoom, setAdminInRoom] = useState(false);
+  const [remotePeers, setRemotePeers] = useState([]);
 
   const localRef = useRef(null);
   const remoteRef = useRef(null);
   const socketRef = useRef(null);
-  const pcRef = useRef(null);
+  const peersRef = useRef({}); // peerId -> { pc, stream, role, name }
+  const iceBuffersRef = useRef({}); // peerId -> [candidates]
   const streamRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
-  const iceCandidateBuffer = useRef([]);
 
   // ── Teardown ──────────────────────────────────────────────────────
   const cleanup = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
 
-    if (pcRef.current) {
-      pcRef.current.close();
-      pcRef.current = null;
-    }
+    Object.values(peersRef.current).forEach(({ pc }) => {
+      try { pc?.close(); } catch {}
+    });
+    peersRef.current = {};
+    iceBuffersRef.current = {};
+
     if (socketRef.current) {
       socketRef.current.disconnect();
       socketRef.current = null;
     }
 
-    iceCandidateBuffer.current = [];
+    setRemotePeers([]);
     if (localRef.current) localRef.current.srcObject = null;
     if (remoteRef.current) remoteRef.current.srcObject = null;
 
@@ -192,18 +195,6 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
     setIsCamOff((c) => !c);
   }, []);
 
-  // ── ICE flush ─────────────────────────────────────────────────────
-  const flushIce = useCallback(async (pc) => {
-    while (iceCandidateBuffer.current.length > 0) {
-      const c = iceCandidateBuffer.current.shift();
-      try {
-        await pc.addIceCandidate(new RTCIceCandidate(c));
-      } catch (e) {
-        console.warn("[useVideoCall] ICE flush error", e);
-      }
-    }
-  }, []);
-
   // ── Main Effect ───────────────────────────────────────────────────
   useEffect(() => {
     if (!dealId || !roomToken) return;
@@ -214,7 +205,7 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
         setStatus("connecting");
         setErrorMsg(null);
 
-        // 1. Camera + mic with speech-friendly constraints (AGC/NS enabled)
+        // 1. Camera + mic
         const stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: AUDIO_CONSTRAINTS,
@@ -230,95 +221,85 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
         });
         socketRef.current = socket;
 
-        // 3. PeerConnection — add audio then video (consistent m-line order)
-        const pc = new RTCPeerConnection(ICE_CONFIG);
-        pcRef.current = pc;
+        // ── Helper to create or retrieve peer connection ──
+        const getOrCreatePeerConnection = (peerId, role, name) => {
+          if (peersRef.current[peerId]?.pc) {
+            return peersRef.current[peerId].pc;
+          }
 
-        const audioTrack = stream.getAudioTracks()[0];
-        const videoTrack = stream.getVideoTracks()[0];
-        if (audioTrack) {
-          try {
-            // Apply explicit constraints to reduce clipping on sustained speech
-            await audioTrack.applyConstraints({
-              ...AUDIO_CONSTRAINTS,
-              advanced: [
-                { noiseSuppression: true },
-                { autoGainControl: true },
-                { echoCancellation: true },
-              ],
+          const pc = new RTCPeerConnection(ICE_CONFIG);
+
+          // Add local tracks
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach((track) => {
+              pc.addTrack(track, streamRef.current);
             });
-          } catch (err) {
-            console.warn("[useVideoCall] audio constraint warning", err);
           }
-          pc.addTrack(audioTrack, stream);
-        }
-        if (videoTrack) pc.addTrack(videoTrack, stream);
 
-        // Prefer Opus explicitly to avoid lower-quality fallbacks on some devices
-        const audioTransceiver = pc
-          .getTransceivers()
-          .find((t) => t.sender?.track?.kind === "audio");
-        const audioCapabilities = RTCRtpSender.getCapabilities("audio");
-        if (
-          audioTransceiver?.setCodecPreferences &&
-          audioCapabilities?.codecs
-        ) {
-          const opusFirst = [
-            ...audioCapabilities.codecs.filter(
-              (c) => c.mimeType === "audio/opus",
-            ),
-            ...audioCapabilities.codecs.filter(
-              (c) => c.mimeType !== "audio/opus",
-            ),
-          ];
-          if (opusFirst.length) {
-            audioTransceiver.setCodecPreferences(opusFirst);
-          }
-        }
-
-        // Raise audio priority and disable DTX to avoid syllable clipping
-        const audioSender = pc
-          .getSenders()
-          .find((s) => s.track?.kind === "audio");
-        if (audioSender?.getParameters) {
+          // Audio constraints & preferences
           try {
-            const params = audioSender.getParameters();
-            if (!params.encodings || params.encodings.length === 0)
-              params.encodings = [{}];
-            params.encodings[0] = {
-              ...params.encodings[0],
-              maxBitrate: 64000,
-              dtx: false,
-              priority: "high",
+            const audioTransceiver = pc
+              .getTransceivers()
+              .find((t) => t.sender?.track?.kind === "audio");
+            const audioCapabilities = RTCRtpSender.getCapabilities("audio");
+            if (audioTransceiver?.setCodecPreferences && audioCapabilities?.codecs) {
+              const opusFirst = [
+                ...audioCapabilities.codecs.filter((c) => c.mimeType === "audio/opus"),
+                ...audioCapabilities.codecs.filter((c) => c.mimeType !== "audio/opus"),
+              ];
+              if (opusFirst.length) audioTransceiver.setCodecPreferences(opusFirst);
+            }
+          } catch (e) {
+            console.warn("[useVideoCall] codec setup warning", e);
+          }
+
+          pc.onicecandidate = ({ candidate }) => {
+            if (candidate) {
+              socket.emit("call:ice-candidate", { to: peerId, candidate });
+            }
+          };
+
+          pc.ontrack = (e) => {
+            const remoteStream = e.streams[0];
+            peersRef.current[peerId] = {
+              ...peersRef.current[peerId],
+              stream: remoteStream,
+              role: role || peersRef.current[peerId]?.role,
+              name: name || peersRef.current[peerId]?.name,
             };
-            params.degradationPreference = "maintain-framerate";
-            await audioSender.setParameters(params);
-          } catch (err) {
-            console.warn("[useVideoCall] audio sender params warning", err);
-          }
-        }
 
-        pc.ontrack = (e) => {
-          if (remoteRef.current && remoteRef.current.srcObject !== e.streams[0])
-            remoteRef.current.srcObject = e.streams[0];
+            setRemotePeers((prev) => {
+              const filtered = prev.filter((p) => p.peerId !== peerId);
+              return [
+                ...filtered,
+                {
+                  peerId,
+                  stream: remoteStream,
+                  role: role || peersRef.current[peerId]?.role,
+                  name: name || peersRef.current[peerId]?.name,
+                },
+              ];
+            });
+
+            if (remoteRef.current && (!remoteRef.current.srcObject || remoteRef.current.srcObject === remoteStream)) {
+              remoteRef.current.srcObject = remoteStream;
+            }
+          };
+
+          pc.onconnectionstatechange = () => {
+            if (destroyed) return;
+            const s = pc.connectionState;
+            console.log(`[useVideoCall] Peer ${peerId} state:`, s);
+            if (s === "connected") {
+              setStatus("active");
+            }
+          };
+
+          peersRef.current[peerId] = { pc, role, name, stream: null };
+          return pc;
         };
 
-        pc.onicecandidate = ({ candidate }) => {
-          if (candidate) socket.emit("call:ice-candidate", { candidate });
-        };
-
-        pc.onconnectionstatechange = () => {
-          if (destroyed) return;
-          const s = pc.connectionState;
-          if (s === "connected") setStatus("active");
-          if (s === "failed") {
-            setStatus("error");
-            setErrorMsg("WebRTC connection failed.");
-          }
-          if (s === "disconnected" || s === "closed") hangUp();
-        };
-
-        // ── Socket events ────────────────────────────────────────
+        // ── Socket Event Listeners ─────────────────────────────────
         socket.on("connect_error", (err) => {
           if (!destroyed) {
             setStatus("error");
@@ -326,94 +307,96 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
           }
         });
 
-        socket.on("call:joined", () => {
-          if (!destroyed) setStatus("ringing");
-        });
-        socket.on("call:peer-ready", () => {
-          if (!destroyed) setStatus("active");
+        socket.on("call:joined", ({ existingPeers = [] } = {}) => {
+          if (destroyed) return;
+          setStatus("ringing");
+          if (existingPeers.length > 0) {
+            setParticipantsCount(existingPeers.length + 1);
+            existingPeers.forEach((p) => {
+              if (p.role === "ADMIN") setAdminInRoom(true);
+              getOrCreatePeerConnection(p.peerId, p.role, p.name);
+            });
+          }
         });
 
-        // INITIATOR: peer joined → create offer
-        let isCreatingOffer = false;
-        socket.on("call:peer-joined", async () => {
-          if (destroyed || isCreatingOffer) return;
-          isCreatingOffer = true;
+        socket.on("call:peer-joined", async (data) => {
+          if (destroyed) return;
+          const peerId = data.peerId || data.newPeerId;
+          if (!peerId) return;
+          if (data.role === "ADMIN") setAdminInRoom(true);
           setStatus("active");
+
+          const pc = getOrCreatePeerConnection(peerId, data.role, data.name);
           try {
-            // Include iceRestart so that if the peer refreshed the page (new RTCPeerConnection),
-            // this peer will generate new ICE candidates for the new session.
             const offer = await pc.createOffer({ iceRestart: true });
             offer.sdp = enhanceOpusSdp(offer.sdp || "");
             await pc.setLocalDescription(offer);
-            socket.emit("call:offer", { offer });
+            socket.emit("call:offer", { to: peerId, offer });
           } catch (e) {
-            setStatus("error");
-            setErrorMsg("Failed to create offer: " + e.message);
-          } finally {
-            isCreatingOffer = false;
+            console.error("[useVideoCall] Failed to create offer:", e);
           }
         });
 
-        // RECEIVER: handle offer → answer
-        let isProcessingOffer = false;
-        socket.on("call:offer", async ({ offer }) => {
-          if (destroyed || isProcessingOffer) return;
-          isProcessingOffer = true;
+        socket.on("call:offer", async ({ from, role, name, offer }) => {
+          if (destroyed || !from || !offer) return;
+          if (role === "ADMIN") setAdminInRoom(true);
+          const pc = getOrCreatePeerConnection(from, role, name);
           try {
-            if (pc.signalingState !== "stable") {
-              console.warn(
-                "[useVideoCall] ignoring offer in state",
-                pc.signalingState,
-              );
-              return;
-            }
             await pc.setRemoteDescription(new RTCSessionDescription(offer));
-            await flushIce(pc);
+            
+            // Flush buffered ICE candidates for this peer
+            if (iceBuffersRef.current[from]?.length) {
+              for (const c of iceBuffersRef.current[from]) {
+                try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (err) {}
+              }
+              iceBuffersRef.current[from] = [];
+            }
+
             const answer = await pc.createAnswer();
             answer.sdp = enhanceOpusSdp(answer.sdp || "");
             await pc.setLocalDescription(answer);
-            socket.emit("call:answer", { answer });
+            socket.emit("call:answer", { to: from, answer });
+            setStatus("active");
           } catch (e) {
-            setStatus("error");
-            setErrorMsg("Offer error: " + e.message);
-          } finally {
-            isProcessingOffer = false;
+            console.error("[useVideoCall] Offer handling error:", e);
           }
         });
 
-        // INITIATOR: handle answer
-        socket.on("call:answer", async ({ answer }) => {
-          if (destroyed) return;
-          try {
-            if (pc.signalingState !== "have-local-offer") {
-              console.warn(
-                "[useVideoCall] ignoring answer in state",
-                pc.signalingState,
-              );
-              return;
+        socket.on("call:answer", async ({ from, answer }) => {
+          if (destroyed || !from || !answer) return;
+          const pc = peersRef.current[from]?.pc;
+          if (pc && pc.signalingState === "have-local-offer") {
+            try {
+              await pc.setRemoteDescription(new RTCSessionDescription(answer));
+              if (iceBuffersRef.current[from]?.length) {
+                for (const c of iceBuffersRef.current[from]) {
+                  try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (err) {}
+                }
+                iceBuffersRef.current[from] = [];
+              }
+            } catch (e) {
+              console.error("[useVideoCall] Answer handling error:", e);
             }
-            await pc.setRemoteDescription(new RTCSessionDescription(answer));
-            await flushIce(pc);
-          } catch (e) {
-            console.error("[useVideoCall] answer error", e);
           }
         });
 
-        // ICE candidates
-        socket.on("call:ice-candidate", async ({ candidate }) => {
+        socket.on("call:ice-candidate", async ({ from, candidate }) => {
           if (destroyed || !candidate) return;
-          if (!pc.remoteDescription) {
-            iceCandidateBuffer.current.push(candidate);
-          } else {
+          const targetPeerId = from || Object.keys(peersRef.current)[0];
+          const pc = targetPeerId ? peersRef.current[targetPeerId]?.pc : null;
+
+          if (pc && pc.remoteDescription) {
             try {
               await pc.addIceCandidate(new RTCIceCandidate(candidate));
             } catch (e) {
-              console.warn("[useVideoCall] ICE error", e);
+              console.warn("[useVideoCall] ICE add error", e);
             }
+          } else if (targetPeerId) {
+            iceBuffersRef.current[targetPeerId] = iceBuffersRef.current[targetPeerId] || [];
+            iceBuffersRef.current[targetPeerId].push(candidate);
           }
         });
 
-        // Participants update
         socket.on("call:participants-update", (data) => {
           if (!destroyed && data) {
             setParticipantsCount(data.count || 1);
@@ -423,7 +406,6 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
           }
         });
 
-        // Chat
         socket.on("call:chat-message", (msg) => {
           if (!destroyed) {
             setMessages((p) => [...p, msg]);
@@ -433,19 +415,19 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
           }
         });
 
-        socket.on("call:peer-joined", (data) => {
-          if (!destroyed && data?.role === "ADMIN") {
-            setAdminInRoom(true);
+        socket.on("call:peer-left", ({ peerId, role, remainingCount }) => {
+          if (destroyed) return;
+          if (peerId && peersRef.current[peerId]) {
+            try { peersRef.current[peerId].pc?.close(); } catch {}
+            delete peersRef.current[peerId];
+            setRemotePeers((prev) => prev.filter((p) => p.peerId !== peerId));
           }
-        });
-
-        socket.on("call:peer-left", (data) => {
-          if (!destroyed) {
-            if (data?.role === "ADMIN") {
-              setAdminInRoom(false);
-            } else if (data?.remainingCount === 0) {
-              hangUp();
-            }
+          if (role === "ADMIN") {
+            setAdminInRoom(false);
+          }
+          if (remainingCount !== undefined) {
+            setParticipantsCount(remainingCount);
+            if (remainingCount === 0) hangUp();
           }
         });
 
@@ -456,7 +438,7 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
           cleanup();
         });
 
-        // Join the room!
+        // Join room
         socket.emit("call:join");
       } catch (err) {
         if (!destroyed) {
@@ -485,6 +467,8 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
   return {
     localRef,
     remoteRef,
+    remotePeers,
+    remoteStreams: remotePeers,
     status,
     isMuted,
     isCamOff,
