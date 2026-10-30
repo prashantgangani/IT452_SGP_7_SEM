@@ -5,63 +5,37 @@ import AdminHeader from './AdminHeader';
 import '../../styles/admin.css';
 
 const AdminLayout = ({ title, children }) => {
-    // Default closed on mobile screens (< 1024px), open on desktop (>= 1024px)
-    const [sidebarOpen, setSidebarOpen] = useState(() => {
-        if (typeof window !== 'undefined') {
-            return window.innerWidth >= 1024;
-        }
-        return true;
-    });
-
+    // Only controls mobile drawer slide-in state
+    const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
     const location = useLocation();
 
-    // Auto-close sidebar on mobile when navigating to another route
+    // Auto-close mobile drawer when navigating to another route
     useEffect(() => {
-        if (window.innerWidth < 1024) {
-            setSidebarOpen(false);
-        }
+        setMobileDrawerOpen(false);
     }, [location.pathname]);
-
-    // Handle screen resize smoothly
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth >= 1024) {
-                setSidebarOpen(true);
-            } else {
-                setSidebarOpen(false);
-            }
-        };
-
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
 
     return (
         <div className="admin-container">
-            {/* Backdrop overlay for mobile drawer */}
-            {sidebarOpen && (
+            {/* Backdrop overlay ONLY rendered for mobile drawer */}
+            {mobileDrawerOpen && (
                 <div
                     className="admin-sidebar-backdrop"
-                    onClick={() => setSidebarOpen(false)}
+                    onClick={() => setMobileDrawerOpen(false)}
                     aria-hidden="true"
                 />
             )}
 
             <AdminSidebar
-                open={sidebarOpen}
-                onToggle={() => setSidebarOpen(!sidebarOpen)}
-                onItemClick={() => {
-                    if (window.innerWidth < 1024) {
-                        setSidebarOpen(false);
-                    }
-                }}
+                open={mobileDrawerOpen}
+                onToggle={() => setMobileDrawerOpen((prev) => !prev)}
+                onItemClick={() => setMobileDrawerOpen(false)}
             />
 
             <div className="admin-main">
                 <AdminHeader
                     title={title}
-                    sidebarOpen={sidebarOpen}
-                    onToggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+                    sidebarOpen={mobileDrawerOpen}
+                    onToggleSidebar={() => setMobileDrawerOpen((prev) => !prev)}
                 />
                 <main className="admin-content">
                     {children}

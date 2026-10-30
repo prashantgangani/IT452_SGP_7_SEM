@@ -37,17 +37,15 @@ const AdminHeader = ({ title, sidebarOpen, onToggleSidebar }) => {
     return (
         <header className="admin-header">
             <div className="header-left">
-                {!sidebarOpen && (
-                    <button
-                        type="button"
-                        className="menu-toggle"
-                        onClick={onToggleSidebar}
-                        aria-label="Open sidebar"
-                        title="Open sidebar"
-                    >
-                        <Menu size={20} />
-                    </button>
-                )}
+                <button
+                    type="button"
+                    className="menu-toggle"
+                    onClick={onToggleSidebar}
+                    aria-label="Toggle navigation drawer"
+                    title="Toggle navigation drawer"
+                >
+                    <Menu size={20} />
+                </button>
                 <h1 className="page-title">{title}</h1>
             </div>
 
@@ -61,8 +59,11 @@ const AdminHeader = ({ title, sidebarOpen, onToggleSidebar }) => {
                     />
                 </div>
 
-                <div className="header-action-wrap">
+                <div className="theme-toggle-wrap">
                     <ThemeToggle />
+                </div>
+
+                <div className="header-action-wrap">
                     <button
                         type="button"
                         className="header-icon-btn"
