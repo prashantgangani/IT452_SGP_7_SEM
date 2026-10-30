@@ -21,6 +21,8 @@ const io = new SocketIOServer(httpServer, {
     credentials: true,
   },
   transports: ['websocket', 'polling'],
+  pingInterval: 10000,
+  pingTimeout: 30000,
 });
 
 // Register global notifications namespace

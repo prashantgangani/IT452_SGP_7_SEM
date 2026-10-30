@@ -97,9 +97,25 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
   const streamRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
+  const heartbeatRef = useRef(null);
+  const wakeLockRef = useRef(null);
+  const visHandlerRef = useRef(null);
 
   // ── Teardown ──────────────────────────────────────────────────────
   const cleanup = useCallback(() => {
+    if (heartbeatRef.current) {
+      clearInterval(heartbeatRef.current);
+      heartbeatRef.current = null;
+    }
+    if (visHandlerRef.current) {
+      document.removeEventListener("visibilitychange", visHandlerRef.current);
+      visHandlerRef.current = null;
+    }
+    if (wakeLockRef.current) {
+      try { wakeLockRef.current.release(); } catch {}
+      wakeLockRef.current = null;
+    }
+
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = null;
 
@@ -448,8 +464,41 @@ export function useVideoCall({ dealId, roomToken, onEnded }) {
           cleanup();
         });
 
-        // Join room
-        socket.emit("call:join");
+        // Request screen wake lock so mobile devices do not dim screen or sleep during call
+        if (typeof navigator !== "undefined" && "wakeLock" in navigator) {
+          navigator.wakeLock.request("screen").then((wl) => {
+            wakeLockRef.current = wl;
+          }).catch(() => {});
+        }
+
+        // Heartbeat to keep cellular and proxy connections alive
+        heartbeatRef.current = setInterval(() => {
+          if (socket.connected) {
+            socket.emit("call:ping");
+          }
+        }, 12000);
+
+        // Visibility listener to recover presence when switching back to tab/app on mobile
+        visHandlerRef.current = () => {
+          if (document.visibilityState === "visible") {
+            if (socket.disconnected) {
+              socket.connect();
+            } else {
+              socket.emit("call:join");
+            }
+          }
+        };
+        document.addEventListener("visibilitychange", visHandlerRef.current);
+
+        socket.on("connect", () => {
+          console.log("[useVideoCall] Socket connected/reconnected:", socket.id);
+          socket.emit("call:join");
+        });
+
+        // Initial join
+        if (socket.connected) {
+          socket.emit("call:join");
+        }
       } catch (err) {
         if (!destroyed) {
           setStatus("error");

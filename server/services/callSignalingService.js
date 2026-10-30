@@ -25,6 +25,7 @@ export function registerCallSocket(io) {
       socket.lenderId = payload.lenderId;
       socket.msmeId = payload.msmeId;
       socket.role = payload.role;
+      socket.userId = payload.userId;
     } catch {
       return next(new Error("Invalid room token"));
     }
@@ -32,7 +33,7 @@ export function registerCallSocket(io) {
     try {
       if (userToken) {
         const u = jwt.verify(userToken, process.env.JWT_SECRET);
-        socket.userId = u.id;
+        socket.userId = u.id || socket.userId;
         socket.userRole = u.role || socket.role;
         socket.userName = u.name;
       }
@@ -44,38 +45,42 @@ export function registerCallSocket(io) {
   callNs.on("connection", (socket) => {
     const roomId = `call:${socket.dealId}`;
 
+    // Keepalive ping/pong
+    socket.on("call:ping", () => {
+      socket.emit("call:pong");
+    });
+
     // ─── JOIN ─────────────────────────────────────────────
     socket.on("call:join", () => {
       if (!rooms[roomId]) rooms[roomId] = { participants: {} };
       const room = rooms[roomId];
 
-      // fallback to socket.id if userId isn't available
-      const userId = socket.userId || socket.id;
+      // Deterministic participant key by role or userId (prevents duplicate slots on reconnect)
+      const participantKey = socket.role === 'ADMIN' ? 'ADMIN' : (socket.userId || socket.id);
 
-      const activeUsers = Object.keys(room.participants);
+      const activeKeys = Object.keys(room.participants);
       
       // Allow up to 3 participants (e.g. Lender, MSME, and Admin)
-      if (activeUsers.length >= 3 && !room.participants[userId]) {
+      if (activeKeys.length >= 3 && !room.participants[participantKey]) {
         socket.emit("call:error", { message: "Room is full (max 3 participants)." });
         return;
       }
 
-      // If this user already has an active socket, kick the old one
-      const oldSocketId = room.participants[userId];
+      // If this user already has an active socket, replace it smoothly without breaking
+      const oldSocketId = room.participants[participantKey];
       if (oldSocketId && oldSocketId !== socket.id) {
         const oldSocket = callNs.sockets.get(oldSocketId);
         if (oldSocket) {
           oldSocket.leave(roomId);
           oldSocket.currentRoom = null;
-          oldSocket.emit("call:error", { message: "Joined from another tab/device. Disconnected." });
-          oldSocket.disconnect(true);
         }
       }
 
-      room.participants[userId] = socket.id;
+      room.participants[participantKey] = socket.id;
       socket.join(roomId);
       socket.currentRoom = roomId;
-      socket.roomUserId = userId; // To make cleanup easier
+      socket.roomParticipantKey = participantKey;
+      socket.roomUserId = socket.userId || socket.id;
 
       const currentUsersCount = Object.keys(room.participants).length;
 
@@ -172,14 +177,18 @@ export function registerCallSocket(io) {
       if (s.currentRoom) {
         const room = rooms[s.currentRoom];
         let remainingCount = 0;
-        if (room && s.roomUserId) {
+        const key = s.roomParticipantKey || s.roomUserId;
+        if (room && key) {
           // Only delete if the disconnected socket is still the active one for this user
-          if (room.participants[s.roomUserId] === s.id) {
-             delete room.participants[s.roomUserId];
+          if (room.participants[key] === s.id) {
+             delete room.participants[key];
              remainingCount = Object.keys(room.participants).length;
              if (remainingCount === 0) {
                delete rooms[s.currentRoom];
              }
+          } else {
+             // A newer socket already took over this participant's slot
+             remainingCount = Object.keys(room.participants).length;
           }
         }
         s.to(s.currentRoom).emit("call:peer-left", {
