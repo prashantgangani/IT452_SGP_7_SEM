@@ -12,9 +12,10 @@ import {
     Menu,
     X,
     ShieldCheck,
+    MoreVertical,
 } from 'lucide-react';
 
-const AdminSidebar = ({ open, onToggle, onItemClick }) => {
+const AdminSidebar = ({ open, collapsed, onToggle, onItemClick }) => {
     const navigate = useNavigate();
     const { logout } = useAuth();
 
@@ -37,8 +38,8 @@ const AdminSidebar = ({ open, onToggle, onItemClick }) => {
     };
 
     return (
-        <aside className={`admin-sidebar ${open ? 'open' : 'closed'}`}>
-            {/* Brand Header with Toggle Button */}
+        <aside className={`admin-sidebar ${open ? 'mobile-open' : ''} ${collapsed ? 'collapsed' : ''}`}>
+            {/* Brand Header with 3-dot / Toggle Button */}
             <div className="sidebar-brand">
                 <div className="flex items-center gap-3 min-w-0">
                     <div className="brand-icon">FB</div>
@@ -51,10 +52,10 @@ const AdminSidebar = ({ open, onToggle, onItemClick }) => {
                     type="button"
                     className="sidebar-toggle-btn"
                     onClick={onToggle}
-                    aria-label="Close sidebar"
-                    title="Close sidebar"
+                    aria-label="Hide sidebar"
+                    title="Hide sidebar (Click to hide)"
                 >
-                    <X size={18} />
+                    <MoreVertical size={18} />
                 </button>
             </div>
 

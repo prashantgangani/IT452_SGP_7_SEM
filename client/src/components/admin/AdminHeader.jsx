@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Search, Bell, Menu, X, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Search, Bell, Menu, X, CheckCircle2, AlertTriangle, MoreVertical } from 'lucide-react';
 import ProfileBadge from '../ProfileBadge';
 import ThemeToggle from '../ThemeToggle';
 
@@ -11,7 +11,7 @@ const initialNotifications = [
     { id: 3, title: 'Funding milestone', message: 'Invoice funding cycle completed successfully.', type: 'success', time: '1 hour ago' },
 ];
 
-const AdminHeader = ({ title, sidebarOpen, onToggleSidebar }) => {
+const AdminHeader = ({ title, sidebarCollapsed, sidebarOpen, onToggleSidebar }) => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const panelRef = useRef(null);
@@ -39,13 +39,21 @@ const AdminHeader = ({ title, sidebarOpen, onToggleSidebar }) => {
             <div className="header-left">
                 <button
                     type="button"
-                    className="menu-toggle"
+                    className={`menu-toggle ${sidebarCollapsed ? 'sidebar-hidden' : ''}`}
                     onClick={onToggleSidebar}
-                    aria-label="Toggle navigation drawer"
-                    title="Toggle navigation drawer"
+                    aria-label={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+                    title={sidebarCollapsed ? "Show sidebar (3-dot menu)" : "Hide sidebar (3-dot menu)"}
                 >
-                    <Menu size={20} />
+                    <MoreVertical size={20} />
                 </button>
+
+                {sidebarCollapsed && (
+                    <div className="header-brand-chip">
+                        <span className="brand-chip-icon">FB</span>
+                        <span className="brand-chip-name">FinSite</span>
+                    </div>
+                )}
+
                 <h1 className="page-title">{title}</h1>
             </div>
 

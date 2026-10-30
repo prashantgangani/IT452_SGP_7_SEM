@@ -17,18 +17,28 @@
 }
 
 .admin-sidebar {
-    position: sticky;
+    position: fixed;
     top: 0;
-    display: flex;
-    flex: 0 0 16.5rem;
+    left: 0;
+    bottom: 0;
     width: 16.5rem;
-    flex-direction: column;
     height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
     padding: 1.25rem 0.9rem;
     border-right: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1));
     background: var(--color-bg-elevated, #0f172a);
-    z-index: 30;
-    flex-shrink: 0;
+    z-index: 40;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1), box-shadow 250ms ease;
+}
+
+.admin-sidebar.collapsed {
+    transform: translateX(-100%);
+    pointer-events: none;
+    box-shadow: none;
 }
 
 .sidebar-brand {
@@ -42,10 +52,10 @@
 }
 
 .sidebar-toggle-btn {
-    display: none;
+    display: grid;
     place-items: center;
-    width: 2rem;
-    height: 2rem;
+    width: 2.1rem;
+    height: 2.1rem;
     border-radius: 0.6rem;
     border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1));
     background: var(--color-bg-elevated-hover, rgba(255, 255, 255, 0.05));
@@ -141,11 +151,22 @@
 .admin-main {
     flex: 1;
     min-width: 0;
+    margin-left: 16.5rem;
+    width: calc(100% - 16.5rem);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left 250ms cubic-bezier(0.4, 0, 0.2, 1), width 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.admin-main.expanded {
+    margin-left: 0;
+    width: 100%;
 }
 
 .admin-header {
     position: sticky;
-    z-index: 10;
+    z-index: 30;
     top: 0;
     display: flex;
     min-height: 4.5rem;
@@ -156,6 +177,7 @@
     border-bottom: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1));
     background: var(--color-glass-overlay, rgba(11, 18, 32, 0.88));
     backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .header-left,
@@ -163,6 +185,36 @@
     display: flex;
     align-items: center;
     gap: 1rem;
+}
+
+.header-brand-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.65rem 0.35rem 0.4rem;
+    background: var(--color-bg-elevated, #0f172a);
+    border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1));
+    border-radius: 0.7rem;
+    animation: adminFadeIn 200ms ease forwards;
+    flex-shrink: 0;
+}
+
+.brand-chip-icon {
+    display: grid;
+    width: 1.6rem;
+    height: 1.6rem;
+    place-items: center;
+    border-radius: 0.45rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #fff;
+    background: var(--color-accent-primary, #3b82f6);
+}
+
+.brand-chip-name {
+    font-size: 0.95rem;
+    font-weight: 750;
+    color: var(--color-text-main, #e2e8f0);
 }
 
 .page-title {
@@ -173,17 +225,24 @@
 }
 
 .menu-toggle {
-    display: none;
+    display: grid;
+    place-items: center;
     position: relative;
     width: 2.5rem;
     height: 2.5rem;
-    place-items: center;
     border: 1px solid var(--color-border-subtle, rgba(255, 255, 255, 0.1));
     border-radius: 0.7rem;
     color: var(--color-text-muted, #94a3b8);
     background: var(--color-bg-elevated, #0f172a);
     cursor: pointer;
     transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.menu-toggle.sidebar-hidden {
+    border-color: rgba(59, 130, 246, 0.4);
+    background: rgba(59, 130, 246, 0.12);
+    color: var(--color-accent-primary, #3b82f6);
 }
 
 .header-icon-btn {
@@ -530,6 +589,11 @@
 }
 
 @media (max-width: 1024px) {
+    .admin-main {
+        margin-left: 0 !important;
+        width: 100% !important;
+    }
+
     .menu-toggle {
         display: grid;
     }
@@ -568,7 +632,8 @@
         pointer-events: auto;
     }
 
-    .admin-sidebar.open {
+    .admin-sidebar.open,
+    .admin-sidebar.mobile-open {
         transform: translateX(0);
         margin-left: 0 !important;
         width: min(18rem, 84vw);
@@ -576,7 +641,7 @@
         pointer-events: auto;
     }
 
-    .admin-sidebar.closed {
+    .admin-sidebar.closed:not(.mobile-open) {
         transform: translateX(-100%);
         margin-left: 0 !important;
         width: min(18rem, 84vw);
