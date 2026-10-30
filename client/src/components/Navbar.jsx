@@ -125,7 +125,7 @@ const Navbar = () => {
             : 'px-3 py-2 rounded-lg text-sm font-medium text-theme-text-muted hover:text-theme-text hover:bg-theme-surface-hover transition-all block w-full text-left md:w-auto md:inline-block';
 
     return (
-        <nav className="sticky top-0 z-50 w-full backdrop-blur-xl bg-theme-bg/80 border-b border-theme-border px-6 py-3">
+        <nav className="fixed top-0 left-0 right-0 z-50 w-full backdrop-blur-xl bg-theme-bg/95 border-b border-theme-border px-6 py-3 shadow-sm">
             <div className="flex justify-between items-center">
                 <div
                     className="cursor-pointer flex items-center gap-0"

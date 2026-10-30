@@ -11,6 +11,14 @@ const AdminDealPage = () => {
     const [processingId, setProcessingId] = useState(null);
     const [signingId, setSigningId] = useState(null);
     const [isDownloadingAgreement, setIsDownloadingAgreement] = useState(null);
+    const [signedDealIds, setSignedDealIds] = useState(() => {
+        try {
+            const stored = localStorage.getItem('admin_attested_deals');
+            return stored ? JSON.parse(stored) : [];
+        } catch {
+            return [];
+        }
+    });
 
     const handleDownloadAgreement = async (dealId) => {
         setIsDownloadingAgreement(dealId);
@@ -27,15 +35,39 @@ const AdminDealPage = () => {
         setSigningId(dealId);
         try {
             const res = await signAgreement(dealId);
-            if (res.success) {
+            if (res.success || res.message) {
                 toast.success("Deal agreement attested & e-signed by Admin!");
+                const nextSigned = [...new Set([...signedDealIds, dealId])];
+                setSignedDealIds(nextSigned);
+                try {
+                    localStorage.setItem('admin_attested_deals', JSON.stringify(nextSigned));
+                } catch {
+                    // ignore storage errors
+                }
                 // Optimistically update local state immediately so button disables instantly
-                setDeals(prev => prev.map(d => d.id === dealId ? { ...d, buyerSigned: true, agreementStatus: res.data?.agreementStatus || d.agreementStatus } : d));
+                setDeals(prev => prev.map(d => d.id === dealId ? {
+                    ...d,
+                    buyerSigned: true,
+                    adminSigned: true,
+                    agreementStatus: res.data?.agreementStatus || 'SIGNED'
+                } : d));
                 await fetchDeals();
             }
         } catch (error) {
-            console.error("Failed to sign deal as admin:", error);
-            toast.error(error.message || "Failed to e-sign agreement");
+            if (error.message && error.message.toLowerCase().includes('already signed')) {
+                toast.success("Agreement is already signed!");
+                const nextSigned = [...new Set([...signedDealIds, dealId])];
+                setSignedDealIds(nextSigned);
+                try {
+                    localStorage.setItem('admin_attested_deals', JSON.stringify(nextSigned));
+                } catch {
+                    // ignore storage errors
+                }
+                setDeals(prev => prev.map(d => d.id === dealId ? { ...d, buyerSigned: true } : d));
+            } else {
+                console.error("Failed to sign deal as admin:", error);
+                toast.error(error.message || "Failed to e-sign agreement");
+            }
         } finally {
             setSigningId(null);
         }
@@ -212,34 +244,59 @@ const AdminDealPage = () => {
                                                     </div>
 
                                                     <div className="flex items-center gap-2 mt-0.5">
-                                                        {deal.buyerSigned ? (
-                                                            <button
-                                                                disabled
-                                                                className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 cursor-not-allowed opacity-90 shadow-sm"
-                                                                title="Agreement has already been attested and e-signed by Admin"
-                                                            >
-                                                                <CheckCircle2 size={12} className="text-emerald-400" />
-                                                                <span>Admin Signed</span>
-                                                            </button>
-                                                        ) : (
-                                                            <button
-                                                                onClick={() => handleAdminSign(deal.id)}
-                                                                disabled={signingId === deal.id || deal.status === 'CLOSED'}
-                                                                className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg text-white shadow-sm transition-all ${
-                                                                    signingId === deal.id || deal.status === 'CLOSED'
-                                                                        ? 'bg-slate-700/60 text-slate-400 border border-white/10 cursor-not-allowed opacity-60'
-                                                                        : 'bg-violet-600 hover:bg-violet-500 active:scale-95 shadow-violet-600/30'
-                                                                }`}
-                                                                title={deal.status === 'CLOSED' ? "Deal is closed" : "Perform Admin Attestation / E-Sign on this Agreement"}
-                                                            >
-                                                                {signingId === deal.id ? (
-                                                                    <RefreshCw size={11} className="animate-spin" />
-                                                                ) : (
-                                                                    <PenTool size={11} />
-                                                                )}
-                                                                <span>{signingId === deal.id ? 'Attesting...' : 'Admin E-Sign'}</span>
-                                                            </button>
-                                                        )}
+                                                        {(() => {
+                                                            const isDealSigned = Boolean(
+                                                                deal.buyerSigned ||
+                                                                deal.adminSigned ||
+                                                                deal.agreementStatus === 'SIGNED' ||
+                                                                signedDealIds.includes(deal.id)
+                                                            );
+
+                                                            if (isDealSigned) {
+                                                                return (
+                                                                    <button
+                                                                        disabled
+                                                                        className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 cursor-not-allowed opacity-90 shadow-sm"
+                                                                        title="Agreement has already been attested and e-signed by Admin"
+                                                                    >
+                                                                        <CheckCircle2 size={12} className="text-emerald-400" />
+                                                                        <span>Admin Signed</span>
+                                                                    </button>
+                                                                );
+                                                            }
+
+                                                            if (deal.status === 'CLOSED') {
+                                                                return (
+                                                                    <button
+                                                                        disabled
+                                                                        className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg bg-slate-700/60 text-slate-400 border border-white/10 cursor-not-allowed opacity-60"
+                                                                        title="Deal is closed"
+                                                                    >
+                                                                        <span>Deal Closed</span>
+                                                                    </button>
+                                                                );
+                                                            }
+
+                                                            return (
+                                                                <button
+                                                                    onClick={() => handleAdminSign(deal.id)}
+                                                                    disabled={signingId === deal.id}
+                                                                    className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-1 rounded-lg text-white shadow-sm transition-all ${
+                                                                        signingId === deal.id
+                                                                            ? 'bg-slate-700/60 text-slate-400 border border-white/10 cursor-not-allowed opacity-60'
+                                                                            : 'bg-violet-600 hover:bg-violet-500 active:scale-95 shadow-violet-600/30'
+                                                                    }`}
+                                                                    title="Perform Admin Attestation / E-Sign on this Agreement"
+                                                                >
+                                                                    {signingId === deal.id ? (
+                                                                        <RefreshCw size={11} className="animate-spin" />
+                                                                    ) : (
+                                                                        <PenTool size={11} />
+                                                                    )}
+                                                                    <span>{signingId === deal.id ? 'Attesting...' : 'Admin E-Sign'}</span>
+                                                                </button>
+                                                            );
+                                                        })()}
 
                                                         <button
                                                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDownloadAgreement(deal.id); }}

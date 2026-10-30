@@ -210,7 +210,7 @@ const MSMEDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-theme-bg">
+        <div className="min-h-screen relative overflow-hidden bg-theme-bg pt-16">
             {/* Glow blobs */}
             <div className="absolute top-0 right-1/4 w-[480px] h-[480px] bg-blue-600 rounded-full -z-10 blur-3xl opacity-[0.12] pointer-events-none" />
             <div className="absolute bottom-1/4 -left-24 w-[400px] h-[400px] bg-cyan-500 rounded-full -z-10 blur-3xl opacity-[0.08] pointer-events-none" />
@@ -354,7 +354,17 @@ const MSMEDashboard = () => {
                                                     ))}
                                                 </Pie>
                                                 <Tooltip
-                                                    contentStyle={{ backgroundColor: 'var(--color-bg-elevated, #0c1526)', borderColor: 'var(--color-border-subtle, #1e293b)', color: 'var(--color-text-main, #fff)', borderRadius: '12px', fontSize: '13px' }}
+                                                    contentStyle={{
+                                                        backgroundColor: '#0f172a',
+                                                        borderColor: 'rgba(255, 255, 255, 0.15)',
+                                                        color: '#ffffff',
+                                                        borderRadius: '12px',
+                                                        fontSize: '13px',
+                                                        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)',
+                                                        padding: '8px 12px'
+                                                    }}
+                                                    itemStyle={{ color: '#ffffff', fontWeight: 600 }}
+                                                    labelStyle={{ color: '#94a3b8', fontSize: '12px', marginBottom: '2px' }}
                                                 />
                                             </PieChart>
                                         </ResponsiveContainer>

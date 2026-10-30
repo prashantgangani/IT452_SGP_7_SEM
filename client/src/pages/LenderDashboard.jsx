@@ -424,7 +424,16 @@ const OverviewSection = ({ onExploreMarketplace, wallet, myDeals }) => {
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '8px' }}
+                                    contentStyle={{
+                                        backgroundColor: '#0f172a',
+                                        borderColor: 'rgba(255, 255, 255, 0.15)',
+                                        color: '#ffffff',
+                                        borderRadius: '10px',
+                                        boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+                                        padding: '8px 12px'
+                                    }}
+                                    itemStyle={{ color: '#ffffff', fontWeight: 600 }}
+                                    labelStyle={{ color: '#94a3b8', fontSize: '12px' }}
                                     formatter={(v) => [`${v}%`]}
                                 />
                             </PieChart>
@@ -822,7 +831,16 @@ const AnalyticsSection = () => (
                             <XAxis dataKey="tier" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                             <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '8px' }}
+                                contentStyle={{
+                                    backgroundColor: '#0f172a',
+                                    borderColor: 'rgba(255, 255, 255, 0.15)',
+                                    color: '#ffffff',
+                                    borderRadius: '10px',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+                                    padding: '8px 12px'
+                                }}
+                                itemStyle={{ color: '#ffffff', fontWeight: 600 }}
+                                labelStyle={{ color: '#60a5fa', fontWeight: 700, marginBottom: '4px' }}
                                 formatter={(v) => [`${v}%`, 'Default Probability']}
                                 cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                             />
@@ -903,8 +921,16 @@ const AnalyticsSection = () => (
                         <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} />
                         <YAxis stroke="#94a3b8" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}%`} />
                         <Tooltip
-                            contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', color: '#fff', borderRadius: '8px' }}
-                            itemStyle={{ color: '#fff' }}
+                            contentStyle={{
+                                backgroundColor: '#0f172a',
+                                borderColor: 'rgba(255, 255, 255, 0.15)',
+                                color: '#ffffff',
+                                borderRadius: '10px',
+                                boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+                                padding: '8px 12px'
+                            }}
+                            itemStyle={{ color: '#ffffff', fontWeight: 600 }}
+                            labelStyle={{ color: '#94a3b8', fontSize: '12px', marginBottom: '2px' }}
                             formatter={(v) => [`${v}%`]}
                         />
                         <Line type="monotone" dataKey="portfolio" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', r: 4 }} activeDot={{ r: 6 }} />
@@ -1190,7 +1216,7 @@ const LenderDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen relative overflow-hidden bg-theme-bg">
+        <div className="min-h-screen relative overflow-hidden bg-theme-bg pt-16">
             {/* Glow blobs — same as MSMEDashboard */}
             <div className="absolute top-0 right-1/4 w-[480px] h-[480px] bg-blue-600 rounded-full -z-10 blur-3xl opacity-[0.12] pointer-events-none" />
             <div className="absolute bottom-1/4 -left-24 w-[400px] h-[400px] bg-cyan-500 rounded-full -z-10 blur-3xl opacity-[0.08] pointer-events-none" />

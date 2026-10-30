@@ -19,10 +19,11 @@ import FinbridgeLoading from '../components/FinbridgeLoading';
 const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
 
 const tooltipStyle = {
-    backgroundColor: 'var(--color-bg-elevated, #0f172a)',
-    border: '1px solid var(--color-border-subtle, rgba(148, 163, 184, 0.18))',
+    backgroundColor: '#0f172a',
+    border: '1px solid rgba(255, 255, 255, 0.15)',
     borderRadius: '12px',
-    color: 'var(--color-text-main, #fff)',
+    color: '#ffffff',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.6)',
 };
 
 const MetricCard = ({ icon: Icon, label, value, hint, positive = true, color = 'blue' }) => {
@@ -153,7 +154,12 @@ const Analytics = () => {
                                     <CartesianGrid stroke="#334155" strokeDasharray="3 3" opacity={0.25} />
                                     <XAxis dataKey="month" stroke="#94a3b8" tickLine={false} axisLine={false} />
                                     <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} tickFormatter={(value) => `₹${Math.round(value / 1000)}k`} />
-                                    <Tooltip contentStyle={tooltipStyle} formatter={(value, name) => [formatCurrency(value), name === 'invested' ? 'Invested' : 'Returns']} />
+                                    <Tooltip
+                                        contentStyle={tooltipStyle}
+                                        itemStyle={{ color: '#ffffff', fontWeight: 600 }}
+                                        labelStyle={{ color: '#94a3b8', fontSize: '12px' }}
+                                        formatter={(value, name) => [formatCurrency(value), name === 'invested' ? 'Invested' : 'Returns']}
+                                    />
                                     <Area type="monotone" dataKey="invested" stroke="#3b82f6" fill="url(#analyticsInvested)" strokeWidth={2.5} />
                                     <Area type="monotone" dataKey="returns" stroke="#10b981" fill="url(#analyticsReturns)" strokeWidth={2.5} />
                                 </AreaChart>
@@ -172,7 +178,12 @@ const Analytics = () => {
                                     <CartesianGrid stroke="#334155" strokeDasharray="3 3" opacity={0.25} horizontal={false} />
                                     <XAxis type="number" allowDecimals={false} stroke="#94a3b8" tickLine={false} axisLine={false} />
                                     <YAxis type="category" dataKey="status" stroke="#94a3b8" tickLine={false} axisLine={false} width={70} />
-                                    <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(59,130,246,0.08)' }} />
+                                    <Tooltip
+                                        contentStyle={tooltipStyle}
+                                        itemStyle={{ color: '#ffffff', fontWeight: 600 }}
+                                        labelStyle={{ color: '#94a3b8', fontSize: '12px' }}
+                                        cursor={{ fill: 'rgba(59,130,246,0.08)' }}
+                                    />
                                     <Bar dataKey="count" fill="#6366f1" radius={[0, 8, 8, 0]} barSize={28} />
                                 </BarChart>
                             </ResponsiveContainer>
