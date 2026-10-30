@@ -24,7 +24,7 @@ function ChatPanel({ messages, onSend }) {
   };
 
   return (
-    <div className="flex flex-col h-44 mt-4 bg-theme-surface border border-theme-border rounded-2xl overflow-hidden shadow-sm">
+    <div className="flex flex-col h-36 sm:h-44 mt-3 sm:mt-4 bg-theme-surface border border-theme-border rounded-2xl overflow-hidden shadow-sm">
       <div className="px-4 py-2 border-b border-theme-border text-xs font-semibold text-theme-text-muted uppercase tracking-wider">
         In-call Chat
       </div>
@@ -206,14 +206,14 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
       <ChatPanel messages={messages} onSend={sendChatMessage} />
 
       {/* Controls */}
-      <div className="flex items-center justify-center gap-4 py-4 mt-2">
+      <div className="flex items-center justify-center gap-2.5 sm:gap-4 py-3 sm:py-4 mt-1 sm:mt-2 flex-wrap">
         {/* Recording buttons — only when active AND user is a LENDER */}
         {status === 'active' && userRole === 'LENDER' && (
           recordingStatus !== 'recording' ? (
             <button
               onClick={startRecording}
               title="Start Recording"
-              className="flex items-center justify-center w-14 h-14 rounded-full bg-slate-800 text-white hover:bg-slate-700 transition-colors border border-white/10 shadow-lg"
+              className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-800 text-white hover:bg-slate-700 transition-colors border border-white/10 shadow-lg"
             >
               <Disc size={20} className="text-rose-400" />
             </button>
@@ -221,7 +221,7 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
             <button
               onClick={stopRecording}
               title="Stop Recording"
-              className="flex items-center justify-center w-14 h-14 rounded-full bg-rose-600 text-white hover:bg-rose-500 transition-colors shadow-lg shadow-rose-500/20 "
+              className="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-rose-600 text-white hover:bg-rose-500 transition-colors shadow-lg shadow-rose-500/20 "
             >
               <Square size={18} className="fill-current animate-pulse" />
             </button>
@@ -232,35 +232,35 @@ function CallRoom({ dealId, roomToken, onCallEnded, userRole }) {
         <button
           onClick={toggleMute}
           title={isMuted ? 'Unmute microphone' : 'Mute microphone'}
-          className={`flex items-center justify-center w-14 h-14 rounded-full transition-all shadow-lg active:scale-95 ${
+          className={`flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full transition-all shadow-lg active:scale-95 ${
             isMuted
               ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
               : 'bg-slate-800 text-white/90 hover:bg-slate-700 border border-white/10'
           }`}
         >
-          {isMuted ? <MicOff size={22} /> : <Mic size={22} />}
+          {isMuted ? <MicOff size={20} /> : <Mic size={20} />}
         </button>
 
         {/* Camera */}
         <button
           onClick={toggleCam}
           title={isCamOff ? 'Turn on camera' : 'Turn off camera'}
-          className={`flex items-center justify-center w-14 h-14 rounded-full transition-all shadow-lg active:scale-95 ${
+          className={`flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full transition-all shadow-lg active:scale-95 ${
             isCamOff
               ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
               : 'bg-slate-800 text-white/90 hover:bg-slate-700 border border-white/10'
           }`}
         >
-          {isCamOff ? <VideoOff size={24} /> : <VideoIcon size={24} />}
+          {isCamOff ? <VideoOff size={20} /> : <VideoIcon size={20} />}
         </button>
 
         {/* End Call */}
         <button
           onClick={handleHangUp}
           title="End Call"
-          className="flex items-center justify-center px-8 h-14 rounded-full bg-rose-600 hover:bg-rose-500 transition-all active:scale-95 text-white shadow-lg shadow-rose-500/30 border border-rose-500/50 ml-2"
+          className="flex items-center justify-center px-6 sm:px-8 h-12 sm:h-14 rounded-full bg-rose-600 hover:bg-rose-500 transition-all active:scale-95 text-white shadow-lg shadow-rose-500/30 border border-rose-500/50"
         >
-          <PhoneOff size={22} />
+          <PhoneOff size={20} />
         </button>
       </div>
     </div>

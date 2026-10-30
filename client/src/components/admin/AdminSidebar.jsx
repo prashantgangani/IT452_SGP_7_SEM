@@ -14,7 +14,7 @@ import {
     ShieldCheck,
 } from 'lucide-react';
 
-const AdminSidebar = ({ open, onToggle }) => {
+const AdminSidebar = ({ open, onToggle, onItemClick }) => {
     const navigate = useNavigate();
     const { logout } = useAuth();
 
@@ -54,7 +54,7 @@ const AdminSidebar = ({ open, onToggle }) => {
                     aria-label="Close sidebar"
                     title="Close sidebar"
                 >
-                    <Menu size={18} />
+                    <X size={18} />
                 </button>
             </div>
 
@@ -67,6 +67,7 @@ const AdminSidebar = ({ open, onToggle }) => {
                         end={item.path === '/admin'}
                         className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
                         title={item.label}
+                        onClick={onItemClick}
                     >
                         <item.icon size={20} />
                         <span>{item.label}</span>
@@ -76,7 +77,13 @@ const AdminSidebar = ({ open, onToggle }) => {
 
             {/* Logout Button */}
             <div className="sidebar-footer">
-                <button className="logout-btn" onClick={handleLogout}>
+                <button
+                    className="logout-btn"
+                    onClick={() => {
+                        onItemClick?.();
+                        handleLogout();
+                    }}
+                >
                     <LogOut size={20} />
                     <span>Logout</span>
                 </button>

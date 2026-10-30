@@ -103,16 +103,26 @@
     }
 
     html {
+        width: 100%;
         min-width: 320px;
         min-height: 100%;
         background: var(--color-bg-base);
+        overflow-x: hidden;
     }
 
     body {
+        width: 100%;
         min-width: 320px;
         min-height: 100vh;
         margin: 0;
         background: var(--color-bg-base);
+        overflow-x: hidden;
+    }
+
+    #root {
+        width: 100%;
+        min-height: 100vh;
+        overflow-x: hidden;
     }
 
     button,
