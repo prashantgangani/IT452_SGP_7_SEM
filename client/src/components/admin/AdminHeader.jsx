@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Search, Bell, Menu, X, CheckCircle2, AlertTriangle } from 'lucide-react';
 import ProfileBadge from '../ProfileBadge';
+import ThemeToggle from '../ThemeToggle';
 
 const initialNotifications = [
     { id: 1, title: 'New lender verification', message: '3 lender applications are awaiting review.', type: 'info', time: '2 min ago' },
@@ -61,6 +62,7 @@ const AdminHeader = ({ title, sidebarOpen, onToggleSidebar }) => {
                 </div>
 
                 <div className="header-action-wrap">
+                    <ThemeToggle />
                     <button
                         type="button"
                         className="header-icon-btn"

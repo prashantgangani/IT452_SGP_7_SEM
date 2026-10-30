@@ -24,8 +24,8 @@ const Navbar = () => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
-    // Hide navbar on auth pages and admin pages
-    const hideNavbarRoutes = ['/login', '/register', '/admin'];
+    // Hide navbar on auth pages, admin pages, and system control
+    const hideNavbarRoutes = ['/login', '/register', '/admin', '/system-control'];
     if (hideNavbarRoutes.some(route => location.pathname.startsWith(route))) {
         return null;
     }

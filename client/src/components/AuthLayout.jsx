@@ -3,6 +3,7 @@ import { ShieldCheck, Zap, TrendingUp, Home, Landmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import '../styles/authTheme.css';
 import MovingLinesBackground from './MovingLinesBackground';
+import ThemeToggle from './ThemeToggle';
 
 const AuthLayout = ({ children, title, subtitle }) => {
     // Animation variants
@@ -18,6 +19,11 @@ const AuthLayout = ({ children, title, subtitle }) => {
 
     return (
         <div className="auth-layout">
+            {/* Top Right Theme Toggle */}
+            <div className="absolute top-6 right-6 lg:top-8 lg:right-10 z-50">
+                <ThemeToggle />
+            </div>
+
             {/* Background Elements */}
             <MovingLinesBackground />
             <div className="auth-bg">

@@ -4,6 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import { useFeatures } from '../context/FeatureContext';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import ThemeToggle from '../components/ThemeToggle';
+import { ArrowLeft } from 'lucide-react';
 
 const SystemControl = () => {
     const { user, token, logout } = useAuth();
@@ -11,8 +13,8 @@ const SystemControl = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Enforce Controller Role explicitly even if ProtectedRoute does it
-        if (!user || user.role !== 'CONTROLLER') {
+        // Enforce Controller or Admin Role
+        if (!user || (user.role !== 'CONTROLLER' && user.role !== 'ADMIN')) {
             navigate('/login');
         }
     }, [user, navigate]);
@@ -52,17 +54,31 @@ const SystemControl = () => {
     return (
         <div className="min-h-screen bg-theme-bg py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-4xl mx-auto">
-                <div className="flex justify-between items-center mb-10">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-10">
                     <div>
-                        <h1 className="text-3xl font-bold text-theme-text tracking-tight">System Control Panel</h1>
+                        <div className="flex items-center gap-3">
+                            {user.role === 'ADMIN' && (
+                                <button
+                                    onClick={() => navigate('/admin/settings')}
+                                    className="p-2 rounded-xl border border-theme-border bg-theme-surface hover:bg-theme-surface-hover text-theme-text-muted hover:text-theme-text transition-colors"
+                                    title="Back to Admin Settings"
+                                >
+                                    <ArrowLeft size={18} />
+                                </button>
+                            )}
+                            <h1 className="text-3xl font-bold text-theme-text tracking-tight">System Control Panel</h1>
+                        </div>
                         <p className="mt-2 text-sm text-theme-text-muted">Master Governance Dashboard: Enable/Disable Application Modules</p>
                     </div>
-                    <button
-                        onClick={handleLogout}
-                        className="bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
-                    >
-                        Sign Out
-                    </button>
+                    <div className="flex items-center gap-3">
+                        <ThemeToggle />
+                        <button
+                            onClick={handleLogout}
+                            className="bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 px-4 py-2 rounded-xl text-sm font-medium transition-colors"
+                        >
+                            Sign Out
+                        </button>
+                    </div>
                 </div>
 
                 <div className="bg-theme-surface shadow-xl rounded-2xl border border-theme-border overflow-hidden">

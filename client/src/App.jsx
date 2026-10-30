@@ -184,9 +184,9 @@ function App() {
               <Route path="/admin/alerts" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminDataPage type="alerts" /></ProtectedRoute>} />
               <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminSettingsPage /></ProtectedRoute>} />
 
-              {/* Protected Route - Controller */}
+              {/* Protected Route - Controller & Admin */}
               <Route path="/system-control" element={
-                <ProtectedRoute allowedRoles={['CONTROLLER']}>
+                <ProtectedRoute allowedRoles={['CONTROLLER', 'ADMIN']}>
                   <SystemControl />
                 </ProtectedRoute>
               } />

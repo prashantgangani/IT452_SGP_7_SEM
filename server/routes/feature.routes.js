@@ -19,7 +19,7 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 // Toggle a feature flag (Admin/Controller only)
-router.patch('/admin/:featureKey', requireAuth, requireRole(['CONTROLLER']), async (req, res) => {
+router.patch('/admin/:featureKey', requireAuth, requireRole(['CONTROLLER', 'ADMIN']), async (req, res) => {
     try {
         const { featureKey } = req.params;
         const { isEnabled } = req.body;
